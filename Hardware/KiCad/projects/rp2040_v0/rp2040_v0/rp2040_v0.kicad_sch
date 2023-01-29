@@ -5064,7 +5064,7 @@
     (property "Sheet name" "IMU" (id 0) (at 317.5 42.4684 0)
       (effects (font (size 1.27 1.27)) (justify left bottom))
     )
-    (property "Sheet file" "untitled.kicad_sch" (id 1) (at 317.5 51.3846 0)
+    (property "Sheet file" "IMU.kicad_sch" (id 1) (at 317.5 51.3846 0)
       (effects (font (size 1.27 1.27)) (justify left top))
     )
   )
