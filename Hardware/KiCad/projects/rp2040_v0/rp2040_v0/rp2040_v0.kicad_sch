@@ -5376,10 +5376,13 @@
       (reference "J12") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/d2a54fd5-7919-4c91-b875-5b1a6fb2c212"
-      (reference "J13") (unit 1) (value "Conn_02x09_Counter_Clockwise") (footprint "")
+      (reference "J13") (unit 1) (value "Conn_02x09_Counter_Clockwise") (footprint "Connector_PinHeader_2.54mm:PinHeader_2x09_P2.54mm_Vertical")
     )
     (path "/af425a44-c1bd-47e9-b36b-bb47c607ce87/761ab2ce-df5f-409b-967d-1e959fa3465f"
       (reference "J14") (unit 1) (value "Conn_02x06_Odd_Even") (footprint "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical")
+    )
+    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/90beff0c-7376-4cbe-8ecc-8d16828dea88"
+      (reference "J15") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
     )
     (path "/b2681fff-d31e-456f-82ce-345e7022a044/2b8dd97c-a36c-4c2e-9f43-cd4610ba40ca"
       (reference "J17") (unit 1) (value "Conn_01x03") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
@@ -5401,9 +5404,6 @@
     )
     (path "/848a71b8-bab3-424a-a51e-99629cb440e3/2f88bdad-fc7f-4728-8b9f-87b34c36720f"
       (reference "J23") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
-    )
-    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/d58be8d0-6945-400c-9d2b-6ba14ed212c1"
-      (reference "J24") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/664f490e-7ea6-4906-a18d-87ae5de0e9e8"
       (reference "J25") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
