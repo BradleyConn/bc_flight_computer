@@ -1774,7 +1774,9 @@
     (uuid ff2a63f7-2fcb-4ed4-9e86-4c746ab5917c)
   )
 
+  (no_connect (at 215.9 179.07) (uuid 09ec902f-daf4-4da0-b2b9-0fb9e94858dc))
   (no_connect (at 132.08 46.99) (uuid 625daf19-7449-4a6b-b45c-af1189425e59))
+  (no_connect (at 168.91 134.62) (uuid f95c0598-3d55-465c-bea7-d88973d13cbf))
 
   (polyline (pts (xy 284.48 49.53) (xy 254 49.53))
     (stroke (width 0) (type default) (color 0 0 0 0))
@@ -3067,13 +3069,6 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid e0747810-08eb-4298-8cfc-8694d42b24ee)
     (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 202.5288 162.4806 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
-  (global_label "Pyro_Control_D" (shape input) (at 168.91 134.62 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid e10ef5e2-afc1-4dec-896c-b89779224f4d)
-    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 177.6731 134.5406 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
@@ -5165,12 +5160,6 @@
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/4ec42264-88e4-4beb-b108-07dc56a5d1a9"
       (reference "#PWR080") (unit 1) (value "GND") (footprint "")
     )
-    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/1d686677-02fc-44f9-b645-70b541b1fac2"
-      (reference "#PWR081") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/36e83c38-1a6e-4dea-b415-7a647b5d6647"
-      (reference "#PWR082") (unit 1) (value "GND") (footprint "")
-    )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/b09257f9-3560-430e-b02f-b37c889b3a74"
       (reference "#PWR083") (unit 1) (value "GND") (footprint "")
     )
@@ -5408,9 +5397,6 @@
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/664f490e-7ea6-4906-a18d-87ae5de0e9e8"
       (reference "J25") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
-    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/8e208824-1f96-40f3-8a2b-3647fddee4aa"
-      (reference "J26") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
-    )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/35b8318f-09e0-498c-a90e-e08a06ea135c"
       (reference "J27") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
@@ -5425,9 +5411,6 @@
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/f4cfbb4c-3e61-47db-be03-56f094e32229"
       (reference "Q2") (unit 1) (value "AO3400A") (footprint "Package_TO_SOT_SMD:SOT-23")
-    )
-    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/baedc7a7-90c4-4f80-a592-1891b1c3560f"
-      (reference "Q3") (unit 1) (value "AO3400A") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/7775d1c7-63e2-4a6f-9834-49916c0155ad"
       (reference "Q4") (unit 1) (value "AO3400A") (footprint "Package_TO_SOT_SMD:SOT-23")
@@ -5557,12 +5540,6 @@
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/5025265c-e62b-4f62-ae63-35d29d854e7b"
       (reference "R49") (unit 1) (value "DNP") (footprint "easyeda2kicad:RES-TH_BD2.4-L6.3-P10.30-D0.6")
-    )
-    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/0d9e686c-bf8e-441d-be17-a3da5ed5785c"
-      (reference "R50") (unit 1) (value "10k") (footprint "Resistor_SMD:R_0402_1005Metric")
-    )
-    (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/01a60961-78dd-4b7b-8815-2741d0edf649"
-      (reference "R51") (unit 1) (value "470") (footprint "Resistor_SMD:R_0402_1005Metric")
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/613c5a50-26a1-48af-bd68-e51a30413dbe"
       (reference "R52") (unit 1) (value "390k") (footprint "Resistor_SMD:R_0603_1608Metric")
