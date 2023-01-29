@@ -3818,7 +3818,7 @@
     (uuid 5bdebb43-6f43-453e-a25f-21bc6b4e7013)
     (property "Reference" "J6" (id 0) (at 129.54 179.07 0))
     (property "Value" "Conn_01x02" (id 1) (at 129.54 181.61 0))
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" (id 2) (at 129.54 187.96 0)
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (id 2) (at 129.54 187.96 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 129.54 187.96 0)
@@ -3963,7 +3963,7 @@
     (uuid 7a1af4c4-a828-4b44-bf4d-06c0108f77bd)
     (property "Reference" "J9" (id 0) (at 247.65 133.35 0))
     (property "Value" "Conn_01x02" (id 1) (at 247.65 135.89 0))
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" (id 2) (at 247.65 142.24 0)
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (id 2) (at 247.65 142.24 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 247.65 142.24 0)
@@ -3978,7 +3978,7 @@
     (uuid 7a66bab4-95e4-4c12-9b13-7483eb53e925)
     (property "Reference" "J4" (id 0) (at 110.49 177.8 0))
     (property "Value" "Conn_01x04" (id 1) (at 110.49 180.34 0))
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" (id 2) (at 110.49 189.23 0)
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical" (id 2) (at 110.49 189.23 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 110.49 189.23 0)
@@ -4455,7 +4455,7 @@
     (property "Value" "Conn_01x02" (id 1) (at 271.78 72.3899 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" (id 2) (at 269.24 69.85 0)
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (id 2) (at 269.24 69.85 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 269.24 69.85 0)
@@ -4470,7 +4470,7 @@
     (uuid be03bec5-5a35-4d4b-8447-569d5be9ea49)
     (property "Reference" "J7" (id 0) (at 149.86 179.07 0))
     (property "Value" "Conn_01x02" (id 1) (at 149.86 181.61 0))
-    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical" (id 2) (at 149.86 187.96 0)
+    (property "Footprint" "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical" (id 2) (at 149.86 187.96 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (id 3) (at 149.86 187.96 0)
@@ -5534,28 +5534,28 @@
       (reference "J3") (unit 1) (value "Conn_01x03") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
     )
     (path "/7a66bab4-95e4-4c12-9b13-7483eb53e925"
-      (reference "J4") (unit 1) (value "Conn_01x04") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
+      (reference "J4") (unit 1) (value "Conn_01x04") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x04_P2.54mm_Vertical")
     )
     (path "/3362f215-01d0-47bb-95bc-a3a8bc9d2087"
       (reference "J5") (unit 1) (value "USB_B_Micro") (footprint "easyeda2kicad:MICRO-USB-SMD_MICROXNJ")
     )
     (path "/5bdebb43-6f43-453e-a25f-21bc6b4e7013"
-      (reference "J6") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
+      (reference "J6") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
     )
     (path "/be03bec5-5a35-4d4b-8447-569d5be9ea49"
-      (reference "J7") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
+      (reference "J7") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
     )
     (path "/5bc0b324-f551-4ef9-9acc-917626da077c"
       (reference "J8") (unit 1) (value "Conn_01x03") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
     )
     (path "/7a1af4c4-a828-4b44-bf4d-06c0108f77bd"
-      (reference "J9") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
+      (reference "J9") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
     )
     (path "/7d9b36de-16cb-4948-81d2-5e0251d36e88"
       (reference "J10") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
     (path "/bab6fd12-af94-4255-9b9f-edcfe4aeb46b"
-      (reference "J11") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
+      (reference "J11") (unit 1) (value "Conn_01x02") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x02_P2.54mm_Vertical")
     )
     (path "/433c1c3c-6e40-4850-b91d-0ca8ef8d4f05"
       (reference "J12") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
@@ -5609,7 +5609,7 @@
       (reference "J28") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/433f6b4b-cf89-4132-a506-a37d8596e27a"
-      (reference "J29") (unit 1) (value "Conn_01x01") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x03_P2.54mm_Vertical")
+      (reference "J29") (unit 1) (value "Conn_01x01") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical")
     )
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/3352021c-8cb8-42ec-98cf-2673b66b0156"
       (reference "Q1") (unit 1) (value "2N7002") (footprint "Package_TO_SOT_SMD:SOT-23")
