@@ -5066,12 +5066,6 @@
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/ea718d23-8d6f-4cd0-940c-7645e2401602"
       (reference "#PWR041") (unit 1) (value "GND") (footprint "")
     )
-    (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/3f9cac23-a147-482a-aa16-2f2c921abbbd"
-      (reference "#PWR042") (unit 1) (value "+3.3V") (footprint "")
-    )
-    (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/7ea4eecb-d661-413a-ac7e-0e04e14d9a22"
-      (reference "#PWR043") (unit 1) (value "+3.3V") (footprint "")
-    )
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/d9bf40f6-f1dd-4951-8d0a-1fa1493a10f2"
       (reference "#PWR044") (unit 1) (value "+3.3V") (footprint "")
     )
@@ -5381,8 +5375,8 @@
     (path "/433c1c3c-6e40-4850-b91d-0ca8ef8d4f05"
       (reference "J12") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
-    (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/0a285be5-eda7-48d0-9de1-7825e43a5cb0"
-      (reference "J13") (unit 1) (value "Conn_02x12_Odd_Even") (footprint "Connector_PinHeader_2.54mm:PinHeader_2x12_P2.54mm_Vertical")
+    (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/d2a54fd5-7919-4c91-b875-5b1a6fb2c212"
+      (reference "J13") (unit 1) (value "Conn_02x09_Counter_Clockwise") (footprint "")
     )
     (path "/af425a44-c1bd-47e9-b36b-bb47c607ce87/761ab2ce-df5f-409b-967d-1e959fa3465f"
       (reference "J14") (unit 1) (value "Conn_02x06_Odd_Even") (footprint "Connector_PinHeader_2.54mm:PinHeader_2x06_P2.54mm_Vertical")
@@ -5468,12 +5462,6 @@
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/9a4847eb-ac6a-454e-a365-f299da4fa46a"
       (reference "R9") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
     )
-    (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/21f1b805-0108-4c08-ad99-0334c8492379"
-      (reference "R10") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
-    )
-    (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/7bf3ec3d-d01f-4098-ab71-c6ca74e118fc"
-      (reference "R11") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
-    )
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/0dc67dfb-4403-447d-a04e-abbda94933f5"
       (reference "R12") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
     )
@@ -5482,9 +5470,6 @@
     )
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/86c3ae6c-8c94-4c63-81c9-d8b2294304c5"
       (reference "R14") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
-    )
-    (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/f52e2f48-586f-4eb3-a4fb-db4fe6701a27"
-      (reference "R15") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
     )
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/eb4a4d69-d42a-4d59-9472-c9d32bcdd442"
       (reference "R16") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
