@@ -1,0 +1,22 @@
+(kicad_sch (version 20211123) (generator eeschema)
+
+  (uuid b2d499ea-6c65-405c-8d58-98e23c9a6c87)
+
+  (paper "A4")
+
+  (title_block
+    (title "Version notes!")
+    (date "2023-01-30")
+    (rev "v0.2")
+  )
+
+  (lib_symbols
+  )
+
+
+  (text "V0.0 - Initial schematic!\nV0.1 - After porting to PCB realized it was way too big. Start stripping out components. Start pcb layout.\nV0.2 - CRITICAL MISTAKE SPOTTED! Flash Chip was wired wrong. Fixed. Continue PCB layout"
+    (at 20.32 22.86 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 297c971a-4b5b-4064-9de4-89d3533ccaba)
+  )
+)
