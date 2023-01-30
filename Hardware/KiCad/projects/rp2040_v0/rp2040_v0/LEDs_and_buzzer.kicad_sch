@@ -523,7 +523,6 @@
   )
 
 
-
   (wire (pts (xy 165.1 69.85) (xy 176.53 69.85))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 0ef62bac-9e27-46a4-b185-f0e5895f993d)
