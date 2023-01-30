@@ -252,6 +252,7 @@
     )
   )
 
+
   (junction (at 46.99 151.13) (diameter 0) (color 0 0 0 0)
     (uuid 111682c7-66b9-4211-9110-19916ef78ca0)
   )
@@ -496,8 +497,8 @@
     (effects (font (size 1.5 1.5) (thickness 0.3) bold) (justify left bottom))
     (uuid b182edd8-6ec0-45e1-ab1d-d33461bcc390)
   )
-  (text "The only other thing on the normal 5v rail are LEDs, so share it."
-    (at 30.48 168.91 0)
+  (text "Use normal 5V rail.\nDouble check what else is coming off the LDO and make sure it can handle it.\nAs of 01/29/23 it's LEDs and potentially a motor driver."
+    (at 30.48 172.72 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
     (uuid da54c5ad-92ce-4452-89ea-8448266b3ffd)
   )
@@ -703,7 +704,7 @@
   (symbol (lib_id "power:+5V") (at 55.88 165.1 90) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 4d94efc3-e1ad-4f1d-acd3-88278ea5b76c)
-    (property "Reference" "#PWR?" (id 0) (at 59.69 165.1 0)
+    (property "Reference" "#PWR0105" (id 0) (at 59.69 165.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+5V" (id 1) (at 52.07 165.0999 90)
