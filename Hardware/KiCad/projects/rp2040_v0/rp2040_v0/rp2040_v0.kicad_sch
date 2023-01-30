@@ -1240,6 +1240,90 @@
         )
       )
     )
+    (symbol "easyeda2kicad_flight_computer:KT-0603R" (in_bom yes) (on_board yes)
+      (property "Reference" "LED" (id 0) (at 0 6.35 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Value" "KT-0603R" (id 1) (at 0 -3.81 0)
+        (effects (font (size 1.27 1.27)))
+      )
+      (property "Footprint" "easyeda2kicad:LED0603-R-RD" (id 2) (at 0 -6.35 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "Datasheet" "https://lcsc.com/product-detail/Light-Emitting-Diodes-LED_Red-LED-0603_C2286.html" (id 3) (at 0 -8.89 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "LCSC Part" "C2286" (id 5) (at 0 -11.43 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (property "JLC Part" "Basic Part" (id 6) (at 0 -13.97 0)
+        (effects (font (size 1.27 1.27)) hide)
+      )
+      (symbol "KT-0603R_0_1"
+        (polyline
+          (pts
+            (xy -2.03 -0.25)
+            (xy -3.81 -2.03)
+          )
+          (stroke (width 0) (type default) (color 0 0 0 0))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy -1.27 -0.76)
+            (xy -1.27 3.3)
+          )
+          (stroke (width 0) (type default) (color 0 0 0 0))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy -1.02 -1.27)
+            (xy -2.79 -3.05)
+          )
+          (stroke (width 0) (type default) (color 0 0 0 0))
+          (fill (type none))
+        )
+        (polyline
+          (pts
+            (xy -3.81 -2.03)
+            (xy -2.79 -1.52)
+            (xy -3.3 -1.02)
+            (xy -3.81 -2.03)
+          )
+          (stroke (width 0) (type default) (color 0 0 0 0))
+          (fill (type background))
+        )
+        (polyline
+          (pts
+            (xy -2.79 -3.05)
+            (xy -1.78 -2.54)
+            (xy -2.29 -2.03)
+            (xy -2.79 -3.05)
+          )
+          (stroke (width 0) (type default) (color 0 0 0 0))
+          (fill (type background))
+        )
+        (polyline
+          (pts
+            (xy 1.27 2.79)
+            (xy -1.27 1.27)
+            (xy 1.27 -0.51)
+            (xy 1.27 2.79)
+          )
+          (stroke (width 0) (type default) (color 0 0 0 0))
+          (fill (type background))
+        )
+        (pin unspecified line (at 5.08 1.27 180) (length 3.81)
+          (name "A" (effects (font (size 1.27 1.27))))
+          (number "1" (effects (font (size 1.27 1.27))))
+        )
+        (pin unspecified line (at -5.08 1.27 0) (length 3.81)
+          (name "K" (effects (font (size 1.27 1.27))))
+          (number "2" (effects (font (size 1.27 1.27))))
+        )
+      )
+    )
     (symbol "power:+1V1" (power) (pin_names (offset 0)) (in_bom yes) (on_board yes)
       (property "Reference" "#PWR" (id 0) (at 0 -3.81 0)
         (effects (font (size 1.27 1.27)) hide)
@@ -1770,7 +1854,6 @@
 
   (no_connect (at 215.9 179.07) (uuid 09ec902f-daf4-4da0-b2b9-0fb9e94858dc))
   (no_connect (at 132.08 46.99) (uuid 625daf19-7449-4a6b-b45c-af1189425e59))
-  (no_connect (at 168.91 134.62) (uuid f95c0598-3d55-465c-bea7-d88973d13cbf))
 
   (polyline (pts (xy 284.48 49.53) (xy 254 49.53))
     (stroke (width 0) (type default) (color 0 0 0 0))
@@ -1928,6 +2011,11 @@
   (polyline (pts (xy 232.41 81.28) (xy 284.48 81.28))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 33e6b581-07ce-4940-bb00-0707e9de1935)
+  )
+
+  (wire (pts (xy 254 99.06) (xy 260.35 99.06))
+    (stroke (width 0) (type default) (color 0 0 0 0))
+    (uuid 35934d5f-bf5f-4bd1-af57-5b509b2519cd)
   )
   (polyline (pts (xy 224.79 165.1) (xy 224.79 57.15))
     (stroke (width 0) (type default) (color 0 0 0 0))
@@ -2124,10 +2212,6 @@
   (wire (pts (xy 91.44 29.21) (xy 91.44 33.02))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 7764fd24-93c0-4bab-9778-9b4f4bd2682e)
-  )
-  (wire (pts (xy 254 99.06) (xy 262.89 99.06))
-    (stroke (width 0) (type default) (color 0 0 0 0))
-    (uuid 7797fc02-304e-4388-92d1-596922dc22e3)
   )
   (wire (pts (xy 107.95 111.76) (xy 118.11 111.76))
     (stroke (width 0) (type default) (color 0 0 0 0))
@@ -2396,7 +2480,7 @@
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid c89ef3ca-d1a0-4547-9696-e85a157cf5bd)
   )
-  (wire (pts (xy 270.51 115.57) (xy 273.05 115.57))
+  (wire (pts (xy 269.24 115.57) (xy 273.05 115.57))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid c8cfc479-68c9-46c1-a890-2b79668e7acf)
   )
@@ -2487,7 +2571,7 @@
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid e8ef08f5-cad7-46e2-aa9f-32a93cb3e15d)
   )
-  (wire (pts (xy 254 115.57) (xy 262.89 115.57))
+  (wire (pts (xy 254 115.57) (xy 261.62 115.57))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid e9190f14-3200-404a-81b1-85dacda2a2f8)
   )
@@ -2797,13 +2881,6 @@
       (effects (font (size 1.27 1.27)) (justify right) hide)
     )
   )
-  (global_label "User_controlled_WS212b_LEDs" (shape input) (at 168.91 149.86 0) (fields_autoplaced)
-    (effects (font (size 1.27 1.27)) (justify left))
-    (uuid 2d4e09e4-06f3-4f4c-97e1-dacdad4cb53b)
-    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 199.9888 149.7806 0)
-      (effects (font (size 1.27 1.27)) (justify left) hide)
-    )
-  )
   (global_label "SPI1_TX__BMP280_MOSI" (shape input) (at 168.91 114.3 0) (fields_autoplaced)
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 36f6d3b8-6d02-4b2e-a590-22a5ad5d212e)
@@ -2822,6 +2899,13 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid 3e43400a-9a5b-49fa-9e6b-0245d63c6933)
     (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 202.5288 159.9406 0)
+      (effects (font (size 1.27 1.27)) (justify left) hide)
+    )
+  )
+  (global_label "User_controlled_LED_A" (shape input) (at 168.91 149.86 0) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid 46568579-7022-4391-9bfd-c478ba524d7c)
+    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 192.6107 149.7806 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
@@ -3039,6 +3123,13 @@
     (effects (font (size 1.27 1.27)) (justify left))
     (uuid e0747810-08eb-4298-8cfc-8694d42b24ee)
     (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 202.5288 162.4806 0)
+      (effects (font (size 1.27 1.27)) (justify left) hide)
+    )
+  )
+  (global_label "User_controlled_LED_B" (shape input) (at 168.91 134.62 0) (fields_autoplaced)
+    (effects (font (size 1.27 1.27)) (justify left))
+    (uuid e7b5f90f-2724-4f75-ad06-fe530dd2ba6f)
+    (property "Intersheet References" "${INTERSHEET_REFS}" (id 0) (at 192.7921 134.6994 0)
       (effects (font (size 1.27 1.27)) (justify left) hide)
     )
   )
@@ -3792,6 +3883,24 @@
     (pin "1" (uuid 877766c1-9eff-4352-bf5a-809f0fd309ab))
   )
 
+  (symbol (lib_id "power:+5V") (at 247.65 99.06 90) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid 769b1b53-a834-4720-bd7c-b08ddae529f0)
+    (property "Reference" "#PWR0101" (id 0) (at 251.46 99.06 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+5V" (id 1) (at 243.84 99.0599 90)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "" (id 2) (at 247.65 99.06 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (id 3) (at 247.65 99.06 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 23b2aa6a-dea2-441c-a4b0-0df2f73f3744))
+  )
+
   (symbol (lib_id "Connector_Generic:Conn_01x02") (at 247.65 142.24 180) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 7a1af4c4-a828-4b44-bf4d-06c0108f77bd)
@@ -3859,24 +3968,6 @@
     (pin "3" (uuid 9a6c34fa-09e0-4603-a546-27adc68fc3c8))
   )
 
-  (symbol (lib_id "power:+3.3V") (at 247.65 99.06 90) (unit 1)
-    (in_bom yes) (on_board yes) (fields_autoplaced)
-    (uuid 8761cafe-5ae8-46ad-af73-8aca9bd5e4c9)
-    (property "Reference" "#PWR029" (id 0) (at 251.46 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+3.3V" (id 1) (at 243.84 99.0599 90)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Footprint" "" (id 2) (at 247.65 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (id 3) (at 247.65 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid bd42df20-17ea-4bce-bc94-9d93a2fe3f66))
-  )
-
   (symbol (lib_id "Connector_Generic:Conn_01x03") (at 105.41 154.94 180) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 882e2063-a682-468e-aef7-9ffcc7a3c92c)
@@ -3928,15 +4019,15 @@
     )
   )
 
-  (symbol (lib_id "Device:LED") (at 266.7 115.57 180) (unit 1)
+  (symbol (lib_id "Device:LED") (at 265.43 115.57 180) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 8df9ca35-88fa-4949-b71c-f8ff3b451cf1)
-    (property "Reference" "D4" (id 0) (at 268.2875 107.95 0))
-    (property "Value" "LED-19-217/GHC-YR1S2/3T" (id 1) (at 268.2875 110.49 0))
-    (property "Footprint" "easyeda2kicad:LED0603-R-RD" (id 2) (at 266.7 115.57 0)
+    (property "Reference" "D4" (id 0) (at 267.0175 107.95 0))
+    (property "Value" "LED-19-217/GHC-YR1S2/3T" (id 1) (at 267.0175 110.49 0))
+    (property "Footprint" "easyeda2kicad:LED0603-R-RD" (id 2) (at 265.43 115.57 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "~" (id 3) (at 266.7 115.57 0)
+    (property "Datasheet" "~" (id 3) (at 265.43 115.57 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (pin "1" (uuid 1de3bf53-22bd-41a1-aa7e-58c659c1cc85))
@@ -4404,21 +4495,6 @@
     (pin "1" (uuid 15067cfb-e775-4a52-bd98-d5043f00fe27))
   )
 
-  (symbol (lib_id "Device:LED") (at 266.7 99.06 180) (unit 1)
-    (in_bom yes) (on_board yes) (fields_autoplaced)
-    (uuid d7350d0d-a92f-4ae9-a132-50b9c6d055c5)
-    (property "Reference" "D3" (id 0) (at 268.2875 91.44 0))
-    (property "Value" "LED-NCD0805R1" (id 1) (at 268.2875 93.98 0))
-    (property "Footprint" "easyeda2kicad:LED0805-RD" (id 2) (at 266.7 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "~" (id 3) (at 266.7 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 0dc0df04-c4e2-41fd-bf40-014dbebf5cb0))
-    (pin "2" (uuid 9fec8f3c-af62-4856-9e88-c705642bf221))
-  )
-
   (symbol (lib_id "power:+5V") (at 154.94 190.5 180) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid da8deacd-a5e7-4f73-aae2-f3da3db9f4a8)
@@ -4628,6 +4704,27 @@
     )
     (pin "1" (uuid 4782e080-8907-499e-ba84-442a728f98db))
     (pin "2" (uuid 71f11b53-a3b0-4509-b43d-2912382ad52c))
+  )
+
+  (symbol (lib_id "easyeda2kicad_flight_computer:KT-0603R") (at 265.43 97.79 180) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid e648d3b1-eed1-4f79-8d45-25203286cbe0)
+    (property "Reference" "LED1" (id 0) (at 266.7 90.17 0))
+    (property "Value" "KT-0603R" (id 1) (at 266.7 92.71 0))
+    (property "Footprint" "easyeda2kicad:LED0603-R-RD" (id 2) (at 265.43 91.44 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "https://lcsc.com/product-detail/Light-Emitting-Diodes-LED_Red-LED-0603_C2286.html" (id 3) (at 265.43 88.9 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "LCSC Part" "C2286" (id 4) (at 265.43 86.36 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "JLC Part" "Basic Part" (id 5) (at 265.43 83.82 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 85afcd02-72dd-47a5-8109-3f7eb2c1c64e))
+    (pin "2" (uuid 7df4a361-c903-4757-8fbe-5b1911d2f83f))
   )
 
   (symbol (lib_id "power:GND") (at 124.46 52.07 90) (unit 1)
@@ -4893,6 +4990,9 @@
     (path "/848a71b8-bab3-424a-a51e-99629cb440e3/378a63e7-86fe-4d0c-a50b-046048a58847"
       (reference "#FLG08") (unit 1) (value "PWR_FLAG") (footprint "")
     )
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/35089b51-702e-46a1-a9df-a3739d74f6c0"
+      (reference "#FLG0101") (unit 1) (value "PWR_FLAG") (footprint "")
+    )
     (path "/617f9643-808b-4ea3-942b-831275ec22c7"
       (reference "#PWR01") (unit 1) (value "GND") (footprint "")
     )
@@ -4976,9 +5076,6 @@
     )
     (path "/f14ace89-b848-425c-ad58-0db7dab96f4f"
       (reference "#PWR028") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/8761cafe-5ae8-46ad-af73-8aca9bd5e4c9"
-      (reference "#PWR029") (unit 1) (value "+3.3V") (footprint "")
     )
     (path "/192d6976-82df-4b16-817e-dbfb103fb9f4"
       (reference "#PWR030") (unit 1) (value "+5V") (footprint "")
@@ -5070,18 +5167,6 @@
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/5b021d8a-66ac-4550-a051-2c7e369bce49"
       (reference "#PWR065") (unit 1) (value "GND") (footprint "")
     )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/98e3ba78-f6cf-4899-b51e-64fa005d71f7"
-      (reference "#PWR066") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/f135274d-49c9-44ff-be76-5df46bdd1390"
-      (reference "#PWR067") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/247f6cb5-0735-412b-923a-305e8cd77d00"
-      (reference "#PWR068") (unit 1) (value "GND") (footprint "")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/d3e8f2fa-7b6f-402f-a407-416dfb81d13c"
-      (reference "#PWR069") (unit 1) (value "GND") (footprint "")
-    )
     (path "/848a71b8-bab3-424a-a51e-99629cb440e3/57f0a757-1548-4ffe-8cd3-6386ca83e54d"
       (reference "#PWR070") (unit 1) (value "GND") (footprint "")
     )
@@ -5132,6 +5217,15 @@
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/1f4fa366-c92c-41d6-9fda-1e4380398c22"
       (reference "#PWR088") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/769b1b53-a834-4720-bd7c-b08ddae529f0"
+      (reference "#PWR0101") (unit 1) (value "+5V") (footprint "")
+    )
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/35c70abb-2da0-43a8-af5b-11fc553b71d8"
+      (reference "#PWR0102") (unit 1) (value "GND") (footprint "")
+    )
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/8adb4781-2d9c-405d-9be6-7129cf2c8f42"
+      (reference "#PWR0103") (unit 1) (value "+5V") (footprint "")
     )
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/f56621e1-0429-4070-aa37-c7f1ca7e72ef"
       (reference "BZ1") (unit 1) (value "Buzzer") (footprint "easyeda2kicad:BUZ-TH_BD9.0-P4.00-D0.6-FD")
@@ -5223,15 +5317,6 @@
     (path "/b2681fff-d31e-456f-82ce-345e7022a044/3561ee18-df54-44fe-b642-78c9a480d0d1"
       (reference "C29") (unit 1) (value "10uF") (footprint "Capacitor_SMD:C_0805_2012Metric")
     )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/c8b0a708-6e87-41e3-9111-3a17cb34a4d9"
-      (reference "C32") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0402_1005Metric")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/63ecc148-e701-4311-9b73-195e351acb84"
-      (reference "C33") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0402_1005Metric")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/9b8bf522-0a18-4120-a8d9-50f0f182bd47"
-      (reference "C34") (unit 1) (value "100nF") (footprint "Capacitor_SMD:C_0402_1005Metric")
-    )
     (path "/848a71b8-bab3-424a-a51e-99629cb440e3/d051c7b0-d333-4fac-8ce2-62cecdfb9039"
       (reference "C35") (unit 1) (value "10uF") (footprint "Capacitor_SMD:C_0805_2012Metric")
     )
@@ -5256,20 +5341,11 @@
     (path "/54e8360e-f87a-4383-9687-74ffa9765e50"
       (reference "D2") (unit 1) (value "1N5819WS") (footprint "Diode_SMD:D_SOD-323")
     )
-    (path "/d7350d0d-a92f-4ae9-a132-50b9c6d055c5"
-      (reference "D3") (unit 1) (value "LED-NCD0805R1") (footprint "easyeda2kicad:LED0805-RD")
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/665cb1a8-2553-4509-888c-4a9467621ea3"
+      (reference "D3") (unit 1) (value "LED-19-217/GHC-YR1S2/3T") (footprint "easyeda2kicad:LED0603-R-RD")
     )
     (path "/8df9ca35-88fa-4949-b71c-f8ff3b451cf1"
       (reference "D4") (unit 1) (value "LED-19-217/GHC-YR1S2/3T") (footprint "easyeda2kicad:LED0603-R-RD")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/7fdc0a27-1419-49eb-9656-9ac5242f2bff"
-      (reference "D5") (unit 1) (value "WS2812B") (footprint "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/bf40a2b1-f36d-421a-93e6-d4c547416625"
-      (reference "D6") (unit 1) (value "WS2812B") (footprint "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/a39ac0a0-6bf6-49f4-9271-40772d603c75"
-      (reference "D7") (unit 1) (value "WS2812B") (footprint "LED_SMD:LED_WS2812B_PLCC4_5.0x5.0mm_P3.2mm")
     )
     (path "/64d28788-7fbc-4281-8f3a-ddcbca4cafbb"
       (reference "H1") (unit 1) (value "MountingHole") (footprint "MountingHole:MountingHole_3.2mm_M3")
@@ -5355,14 +5431,20 @@
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/cd417a7d-a15d-4468-9b0b-044e52da8d2e"
       (reference "J28") (unit 1) (value "Screw_Terminal_01x02") (footprint "easyeda2kicad:CONN-TH_XY301V-A-5.0-2P")
     )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/433f6b4b-cf89-4132-a506-a37d8596e27a"
-      (reference "J29") (unit 1) (value "Conn_01x01") (footprint "Connector_PinHeader_2.54mm:PinHeader_1x01_P2.54mm_Vertical")
+    (path "/e648d3b1-eed1-4f79-8d45-25203286cbe0"
+      (reference "LED1") (unit 1) (value "KT-0603R") (footprint "easyeda2kicad:LED0603-R-RD")
+    )
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/bb235dc0-0e75-4366-9159-753685d94dd0"
+      (reference "LED2") (unit 1) (value "KT-0603R") (footprint "easyeda2kicad:LED0603-R-RD")
     )
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/3352021c-8cb8-42ec-98cf-2673b66b0156"
       (reference "Q1") (unit 1) (value "2N7002") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/f4cfbb4c-3e61-47db-be03-56f094e32229"
       (reference "Q2") (unit 1) (value "AO3400A") (footprint "Package_TO_SOT_SMD:SOT-23")
+    )
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/c773bc39-0480-40f8-8d3c-2dbc0bed4ef1"
+      (reference "Q3") (unit 1) (value "2N7002") (footprint "Package_TO_SOT_SMD:SOT-23")
     )
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/7775d1c7-63e2-4a6f-9834-49916c0155ad"
       (reference "Q4") (unit 1) (value "AO3400A") (footprint "Package_TO_SOT_SMD:SOT-23")
@@ -5396,6 +5478,12 @@
     )
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/9a4847eb-ac6a-454e-a365-f299da4fa46a"
       (reference "R9") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
+    )
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/cbd7dc69-39f6-4b1c-98d9-33cd889b1dcf"
+      (reference "R10") (unit 1) (value "470") (footprint "Resistor_SMD:R_0402_1005Metric")
+    )
+    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/bf9e0683-cf76-4198-be05-5f12ed111d67"
+      (reference "R11") (unit 1) (value "100") (footprint "Resistor_SMD:R_0402_1005Metric")
     )
     (path "/e2b4e37d-6e5e-4589-9577-9e6c278210bd/0dc67dfb-4403-447d-a04e-abbda94933f5"
       (reference "R12") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
@@ -5443,7 +5531,7 @@
       (reference "R32") (unit 1) (value "470") (footprint "Resistor_SMD:R_0402_1005Metric")
     )
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/faf85b2c-4c08-47a9-95c9-c1f77a1b7d4f"
-      (reference "R33") (unit 1) (value "2.2k") (footprint "Resistor_SMD:R_0402_1005Metric")
+      (reference "R33") (unit 1) (value "200") (footprint "Resistor_SMD:R_0402_1005Metric")
     )
     (path "/848a71b8-bab3-424a-a51e-99629cb440e3/0b5b7e55-b94c-4ff2-8dfe-8429c9faa2f2"
       (reference "R34") (unit 1) (value "0 ohm") (footprint "Resistor_SMD:R_0402_1005Metric")
@@ -5534,12 +5622,6 @@
     )
     (path "/e2f63f27-294e-49f0-b6b6-44ea62992862"
       (reference "TP6") (unit 1) (value "TestPoint") (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/4871f363-3602-4df9-8f68-846c4d704ddc"
-      (reference "TP7") (unit 1) (value "TestPoint") (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm")
-    )
-    (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/0c35527d-084a-4597-a124-64b3a3b55031"
-      (reference "TP8") (unit 1) (value "TestPoint") (footprint "TestPoint:TestPoint_Pad_1.0x1.0mm")
     )
     (path "/3857eacd-a358-4451-8da1-63de73d28dfa"
       (reference "U1") (unit 1) (value "W25Q128JVSIQTR") (footprint "easyeda2kicad:SOIC-8_L5.3-W5.3-P1.27-LS8.0-BL")
