@@ -1837,7 +1837,6 @@
     (uuid ff2a63f7-2fcb-4ed4-9e86-4c746ab5917c)
   )
 
-  (no_connect (at 215.9 179.07) (uuid 09ec902f-daf4-4da0-b2b9-0fb9e94858dc))
   (no_connect (at 132.08 46.99) (uuid 625daf19-7449-4a6b-b45c-af1189425e59))
 
   (polyline (pts (xy 284.48 49.53) (xy 254 49.53))
@@ -3830,24 +3829,6 @@
     (pin "1" (uuid 877766c1-9eff-4352-bf5a-809f0fd309ab))
   )
 
-  (symbol (lib_id "power:+5V") (at 247.65 99.06 90) (unit 1)
-    (in_bom yes) (on_board yes) (fields_autoplaced)
-    (uuid 769b1b53-a834-4720-bd7c-b08ddae529f0)
-    (property "Reference" "#PWR0101" (id 0) (at 251.46 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Value" "+5V" (id 1) (at 243.84 99.0599 90)
-      (effects (font (size 1.27 1.27)) (justify left))
-    )
-    (property "Footprint" "" (id 2) (at 247.65 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (id 3) (at 247.65 99.06 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "1" (uuid 23b2aa6a-dea2-441c-a4b0-0df2f73f3744))
-  )
-
   (symbol (lib_id "Connector_Generic:Conn_01x02") (at 247.65 142.24 180) (unit 1)
     (in_bom yes) (on_board yes) (fields_autoplaced)
     (uuid 7a1af4c4-a828-4b44-bf4d-06c0108f77bd)
@@ -3897,6 +3878,24 @@
     )
     (pin "1" (uuid e9913457-23f6-4cdf-bd63-11a08614ad3d))
     (pin "2" (uuid 55364bf2-99dc-463d-a595-26e733faa336))
+  )
+
+  (symbol (lib_id "power:+3.3V") (at 247.65 99.06 90) (unit 1)
+    (in_bom yes) (on_board yes) (fields_autoplaced)
+    (uuid 7aee799c-e7e1-4ec9-b56f-250514197216)
+    (property "Reference" "#PWR?" (id 0) (at 251.46 99.06 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Value" "+3.3V" (id 1) (at 243.84 99.0599 90)
+      (effects (font (size 1.27 1.27)) (justify left))
+    )
+    (property "Footprint" "" (id 2) (at 247.65 99.06 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (id 3) (at 247.65 99.06 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "1" (uuid 87819f77-17ae-424f-915c-9399c4016a7e))
   )
 
   (symbol (lib_id "Regulator_Linear:AMS1117-3.3") (at 74.93 33.02 0) (unit 1)
@@ -5149,9 +5148,6 @@
     (path "/5973b2d7-3984-4261-9bd9-41fa219882e0/1f4fa366-c92c-41d6-9fda-1e4380398c22"
       (reference "#PWR088") (unit 1) (value "GND") (footprint "")
     )
-    (path "/769b1b53-a834-4720-bd7c-b08ddae529f0"
-      (reference "#PWR0101") (unit 1) (value "+5V") (footprint "")
-    )
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/35c70abb-2da0-43a8-af5b-11fc553b71d8"
       (reference "#PWR0102") (unit 1) (value "GND") (footprint "")
     )
@@ -5160,6 +5156,9 @@
     )
     (path "/94c859af-bb47-4c6a-8cd8-4e99e01aa3c9"
       (reference "#PWR0104") (unit 1) (value "+5V") (footprint "")
+    )
+    (path "/7aee799c-e7e1-4ec9-b56f-250514197216"
+      (reference "#PWR?") (unit 1) (value "+3.3V") (footprint "")
     )
     (path "/80e37a29-2645-40c2-ad1a-3b8bdd51b77d/f56621e1-0429-4070-aa37-c7f1ca7e72ef"
       (reference "BZ1") (unit 1) (value "Buzzer") (footprint "easyeda2kicad:BUZ-TH_BD9.0-P4.00-D0.6-FD")
