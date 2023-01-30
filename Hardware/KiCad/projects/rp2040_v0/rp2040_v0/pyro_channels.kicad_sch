@@ -6,8 +6,8 @@
 
   (title_block
     (title "Pyros!")
-    (date "2023-01-29")
-    (rev "v0.1")
+    (date "2023-01-30")
+    (rev "v0.2")
   )
 
   (lib_symbols

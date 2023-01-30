@@ -6,8 +6,8 @@
 
   (title_block
     (title "Servo Motor Circuitry")
-    (date "2023-01-29")
-    (rev "v0.1")
+    (date "2023-01-30")
+    (rev "v0.2")
   )
 
   (lib_symbols
@@ -251,7 +251,6 @@
       )
     )
   )
-
 
   (junction (at 46.99 151.13) (diameter 0) (color 0 0 0 0)
     (uuid 111682c7-66b9-4211-9110-19916ef78ca0)
