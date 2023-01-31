@@ -572,7 +572,7 @@
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 3745be63-c871-4cd8-a3eb-87414547068d)
   )
-  (wire (pts (xy 233.68 96.52) (xy 236.22 96.52))
+  (wire (pts (xy 231.14 96.52) (xy 236.22 96.52))
     (stroke (width 0) (type default) (color 0 0 0 0))
     (uuid 38fa4fd0-4927-436d-9193-424af4b9e636)
   )
