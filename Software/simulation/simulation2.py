@@ -9,7 +9,8 @@ force_n=0
 
 time=0
 time_step = .001
-time_end=10
+time_end=7
+time_end=.01
 
 Kp=0.5
 Ki=0
@@ -21,14 +22,15 @@ g=9.81
 
 tvc_velocity_deg_per_sec = 60/.13 #from the spec sheet
 tvc_delay_sec = .005 #check this when the servos are here
-tvc_set_point = 0
-motor_thrust_n =[35,35,35,35,35,35,0,0,0,0,0]
+tvc_angle_x = [0,0]
+tvc_angle_y = [0,0]
+motor_thrust_n =[35,35,35,35,35,35,35,0,0,0,0]
 for i in range(1000):
     motor_thrust_n.append(0)
 
 class xyz:
     def __init__(self,x,y,z):
-        self.x = x
+        self.x=x
         self.y=y
         self.z=z
     def __str__(self):
@@ -39,8 +41,10 @@ sim_linear_velocity = [xyz(0,0,0), xyz(0,0,0)]
 sim_linear_position = [xyz(0,0,0), xyz(0,0,0)]
 sim_angular_acceleration = [xyz(0,0,0), xyz(0,0,0)]
 sim_angular_velocity = [xyz(0,0,0), xyz(0,0,0)]
-sim_angular_position = [xyz(0,0,0), xyz(math.radians(-10),math.radians(-20),0)]
-sim_TVC_position = [xyz(0,0,0), xyz(0,0,0)]
+#sim_angular_position = [xyz(0,0,0), xyz(math.radians(-10),math.radians(-20),0)]
+sim_angular_position = [xyz(10,0,0), xyz(10,0,0)]
+#sim_angular_position = [xyz(0,0,0), xyz(0,0,0)]
+sim_TVC_angle = [xyz(0,0,0), xyz(0,0,0)]
 #rocket sensors
 #don't need accel or baro for sim for now
 sensor_gyro = [xyz(0,0,0), xyz(0,0,0)]
@@ -58,7 +62,7 @@ rocket_orientation = [xyz(0,0,0), xyz(0,0,0)]
 #Moment arm in M
 #example values
 MMOI = .04
-MA = 0.28
+MA = 0.3
 
 #in - force on axis
 #out - anglw, angluar velocity, pos, vel, accel
@@ -100,15 +104,14 @@ def calculate_angular_acceleration():
     global time
     motor_thrust = motor_thrust_n[math.floor(time)]
     point = xyz(0,0,0)
-    if time > .5:
-        point.x = math.radians(45)
-        point.y = math.radians(50)
-    if time > 1.5:
-        point.x = -(math.radians(45))
-        point.y = -(math.radians(50))
-    if time > 2.5:
-        point.x = 0
-        point.y = 0
+    # torque = MMOI * angular_Accel
+    # torque is newton*meters
+    # angular acceleration = newtons*moment arm/ MMOI
+    newtons_x = motor_thrust*math.sin(math.radians(tvc_angle_x[-1]))
+    print("angular_accel: n = " + str(newtons_x) + " thrust = " + str(motor_thrust) + " tvc angle: " + str(tvc_angle_x[-1]) + " sin " + str( math.sin(math.radians(tvc_angle_x[-1]))))
+    point.x = math.degrees(newtons_x * MA / MMOI)
+    newtons_y = motor_thrust*math.sin(math.radians(tvc_angle_y[-1]))
+    point.y = math.degrees(newtons_y * MA / MMOI)
     sim_angular_acceleration.append(point)
     print ("sim_angular_acceleration: " + str(sim_angular_acceleration[-1]))
 def calculate_angular_velocity():
@@ -145,9 +148,9 @@ def calculate_linear_acceleration():
     #    x:90 degrees is yaw to the right, -90 is yaw to the left
     #    y:90 degrees is pitch forward, -90 is pitch backwards
     # yaw then pitch then roll in that order!
-    force_x = motor_thrust * math.sin(last_angle.x) * math.cos(last_angle.y)
-    force_y = motor_thrust * math.sin(last_angle.y)
-    force_z = motor_thrust * math.cos(last_angle.x) * math.cos(last_angle.y)
+    force_x = motor_thrust * math.sin(math.radians(last_angle.x)) * math.cos(last_angle.y)
+    force_y = motor_thrust * math.sin(math.radians(last_angle.y))
+    force_z = motor_thrust * math.cos(math.radians(last_angle.x)) * math.cos(last_angle.y)
     force_z = force_z - (g * mass_kg)
 
     #f=ma
@@ -178,6 +181,45 @@ def calculate_linear_position():
     sim_linear_position.append(pos)
     print ("sim_linear_position: " + str(sim_linear_position[-1]))
 
+def tvc_set_angle(x,y):
+    tvc_angle_x.append(x)
+    tvc_angle_y.append(y)
+
+integral_x = 0
+integral_y = 0
+def pid(setpoint, axis):
+    print("Kp = " + str(Kp))
+    #Take the orientation and output torque
+    orientation_data = sim_angular_position[-1]
+    print(orientation_data)
+    ori = 0
+    if axis == "x":
+        ori = orientation_data.x
+    if axis == "y":
+        ori = orientation_data.y
+
+    # now do the PID
+    error = setpoint - ori
+    print("set = " + str(setpoint) + " ori = " + str(ori) + " error = " + str(error))
+    proportional = Kp*error
+
+    integral = 0;
+    # TODO:add clamping to prevent windup.
+    if axis == "x":
+        global integral_x
+        integral_x = integral_x + (Ki*error*time_step)
+        integral = integral_x
+    if axis == "y":
+        global integral_y
+        integral_y = integral_y + (Ki*error*time_step)
+        integral = integral_y
+    
+    derivative = Kd*error/time_step
+
+    output = proportional + integral + derivative
+    print("pid = " + str(output))
+    return output
+
 def step():
     global time
     global time_step
@@ -191,35 +233,16 @@ def step():
     calculate_linear_acceleration()
     calculate_linear_velocity()
     calculate_linear_position()
+    desired_torque_x = pid(0,"x")
+    desired_torque_y = pid(0,"y")
+#    tvc_angle_x = torque_to_tvc_angle(desired_torque_x)
+#    tvc_angle_y = torque_to_tvc_angle(desired_torque_y)
+#    tvc_set_angle(tvc_angle_x, tvc_angle_y)
+    tvc_set_angle(desired_torque_x, desired_torque_y)
 
 
     global altitude_m
     altitude_m = sim_linear_position[-1].z
-
-integral = 0
-def pid(setpoint, axis):
-    print("Kp = " + str(Kp))
-    #Take the orientation and output torque
-    orientation_data = rocket_orientation[-1]
-    ori = 0
-    if axis == "x":
-        ori = orientation_data.x
-    if axis == "y":
-        ori = orientation_data.y
-
-    # now do the PID
-    error = ori - setpoint
-    proportional = Kp*error
-
-    # TODO:add clamping to prevent windup.
-    global integral
-    integral = integral + (Ki*error*time_step)
-    
-    derivative = Kd*error/time_step
-
-    output = proportional + integral + derivative
-    print(output)
-    return output
 
 
 #Use the global state and derive what the sensors would say
@@ -242,10 +265,21 @@ def read_sensors():
     z_orientation = last_orientation.z + z_deg_per_sec
     rocket_orientation.append(xyz(x_orientation, y_orientation, z_orientation))
 
-def torque_to_tvc_angle(torque, i):
-    motor_thrust = motor_thrust_n[math.floor(i*time_step)]
-    math.asin(1)
-    return 5
+def torque_to_tvc_angle(torque):
+    global time
+    motor_thrust = motor_thrust_n[math.floor(time)]
+    # avoid divide by 0!
+    if motor_thrust < 1:
+        return 0
+    #torque = newtons * moment arm
+    #newtons = thrust*sin(angle)
+    #angle = arcsin(newtons/thrust)
+    newtons = torque/MA
+    a = newtons/motor_thrust
+    print("a: " + str(a))
+    b = math.asin(a)
+    c = math.degrees(b)
+    return math.degrees(math.asin(newtons/motor_thrust))
 
 
 def main():
@@ -254,8 +288,8 @@ def main():
     while altitude_m >= 0:
         read_sensors()
         #pid takes in the rocket orientation (angle) and spits out a torque
-        torque_x = pid(0, "x")
-        torque_y = pid(0, "y")
+        #torque_x = pid(0, "x")
+        #torque_y = pid(0, "y")
         #take that torque and calculate a TVC angle
         #motor_thrust = motor_thrust_n[math.floor(i*time_step)]
         #angle_x = torque_to_tvc_angle(torque_x, i)
@@ -298,20 +332,20 @@ def main():
         pos_x.append(sim_linear_position[i].x)
         pos_y.append(sim_linear_position[i].y)
         pos_z.append(sim_linear_position[i].z)
-        angular_acc_x.append(math.degrees(sim_angular_acceleration[i].x))
-        angular_acc_y.append(math.degrees(sim_angular_acceleration[i].y))
-        angular_acc_z.append(math.degrees(sim_angular_acceleration[i].z))
-        angular_vel_x.append(math.degrees(sim_angular_velocity[i].x))
-        angular_vel_y.append(math.degrees(sim_angular_velocity[i].y))
-        angular_vel_z.append(math.degrees(sim_angular_velocity[i].z))
-        angular_pos_x.append(math.degrees(sim_angular_position[i].x))
-        angular_pos_y.append(math.degrees(sim_angular_position[i].y))
-        angular_pos_z.append(math.degrees(sim_angular_position[i].z))
+        angular_acc_x.append(sim_angular_acceleration[i].x)
+        angular_acc_y.append(sim_angular_acceleration[i].y)
+        angular_acc_z.append(sim_angular_acceleration[i].z)
+        angular_vel_x.append(sim_angular_velocity[i].x)
+        angular_vel_y.append(sim_angular_velocity[i].y)
+        angular_vel_z.append(sim_angular_velocity[i].z)
+        angular_pos_x.append(sim_angular_position[i].x)
+        angular_pos_y.append(sim_angular_position[i].y)
+        angular_pos_z.append(sim_angular_position[i].z)
 
 
         
 
-    fig, axs = plt.subplots(3,2)
+    fig, axs = plt.subplots(4,2)
     axs[0][0].plot(t, acc_x, label = "sim_linear_acceleration x")
     axs[0][0].plot(t, acc_y, label = "sim_linear_acceleration y")
     axs[0][0].plot(t, acc_z, label = "sim_linear_acceleration z")
@@ -349,6 +383,9 @@ def main():
     axs[2][1].plot(t, angular_pos_x, label = "sim_angular_position x")
     axs[2][1].plot(t, angular_pos_y, label = "sim_angular_position y")
     axs[2][1].plot(t, angular_pos_z, label = "sim_angular_position z")
+
+    axs[3][0].plot(t, tvc_angle_x, label = "tvc angle x")
+    axs[3][1].plot(t, tvc_angle_y, label = "tvc angle y")
     
     # naming the y axis
     axs[0][1].title.set_text('Angular Acceleration')
