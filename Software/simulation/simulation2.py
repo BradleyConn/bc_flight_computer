@@ -39,7 +39,7 @@ sim_linear_velocity = [xyz(0,0,0), xyz(0,0,0)]
 sim_linear_position = [xyz(0,0,0), xyz(0,0,0)]
 sim_angular_acceleration = [xyz(0,0,0), xyz(0,0,0)]
 sim_angular_velocity = [xyz(0,0,0), xyz(0,0,0)]
-sim_angular_position = [xyz(0,0,0), xyz(0,0,0)]
+sim_angular_position = [xyz(0,0,0), xyz(math.radians(-10),math.radians(-20),0)]
 sim_TVC_position = [xyz(0,0,0), xyz(0,0,0)]
 #rocket sensors
 #don't need accel or baro for sim for now
@@ -101,11 +101,11 @@ def calculate_angular_acceleration():
     motor_thrust = motor_thrust_n[math.floor(time)]
     point = xyz(0,0,0)
     if time > .5:
-        point.x = math.radians(90)
-        point.y = math.radians(1)
+        point.x = math.radians(45)
+        point.y = math.radians(50)
     if time > 1.5:
-        point.x = -(math.radians(90))
-        point.y = math.radians(-1)
+        point.x = -(math.radians(45))
+        point.y = -(math.radians(50))
     if time > 2.5:
         point.x = 0
         point.y = 0
@@ -142,11 +142,12 @@ def calculate_linear_acceleration():
     #cos 0 = 1
     #Make the axis such that
     #    0 degrees pitch is upright, and 0 degrees yaw is upright
-    #    90 degrees is yaw to the right, -90 is yaw to the left
-    #    90 degrees is pitch forward, -90 is pitch backwards
+    #    x:90 degrees is yaw to the right, -90 is yaw to the left
+    #    y:90 degrees is pitch forward, -90 is pitch backwards
+    # yaw then pitch then roll in that order!
     force_x = motor_thrust * math.sin(last_angle.x) * math.cos(last_angle.y)
-    force_y = motor_thrust * math.sin(last_angle.x) * math.sin(last_angle.y)
-    force_z = motor_thrust * math.cos(last_angle.x)
+    force_y = motor_thrust * math.sin(last_angle.y)
+    force_z = motor_thrust * math.cos(last_angle.x) * math.cos(last_angle.y)
     force_z = force_z - (g * mass_kg)
 
     #f=ma
@@ -372,12 +373,12 @@ def main():
     ax3D.set_ylabel('y')
     ax3D.set_zlabel('z')
       
-    ang_fig3D = plt.figure()
-    ang_ax3D = plt.axes(projection='3d')
-    ang_ax3D.plot(angular_pos_x, angular_pos_y, angular_pos_z, label = "angular_position 3D")
-    ang_ax3D.set_xlabel('x')
-    ang_ax3D.set_ylabel('y')
-    ang_ax3D.set_zlabel('z')
+    #ang_fig3D = plt.figure()
+    #ang_ax3D = plt.axes(projection='3d')
+    #ang_ax3D.plot(angular_pos_x, angular_pos_y, angular_pos_z, label = "angular_position 3D")
+    #ang_ax3D.set_xlabel('x')
+    #ang_ax3D.set_ylabel('y')
+    #ang_ax3D.set_zlabel('z')
       
     # show a legend on the plot
     plt.legend()
