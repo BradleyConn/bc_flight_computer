@@ -10,11 +10,10 @@ force_n=0
 time=0
 time_step = .001
 time_end=7
-time_end=.01
 
 Kp=0.5
-Ki=0
-Kd=0
+Ki=0.3
+Kd=0.1
 
 mass_kg=1
 
@@ -38,7 +37,7 @@ class xyz:
 #global sim frame
 sim_linear_acceleration = [xyz(0,0,0), xyz(0,0,0)]
 sim_linear_velocity = [xyz(0,0,0), xyz(0,0,0)]
-sim_linear_position = [xyz(0,0,0), xyz(0,0,0)]
+sim_linear_position = [xyz(0,0,0), xyz(0,0,200)]
 sim_angular_acceleration = [xyz(0,0,0), xyz(0,0,0)]
 sim_angular_velocity = [xyz(0,0,0), xyz(0,0,0)]
 #sim_angular_position = [xyz(0,0,0), xyz(math.radians(-10),math.radians(-20),0)]
@@ -182,6 +181,14 @@ def calculate_linear_position():
     print ("sim_linear_position: " + str(sim_linear_position[-1]))
 
 def tvc_set_angle(x,y):
+    if(x>5):
+        x=5
+    if x<-5:
+        x=-5
+    if(y>5):
+        y=5
+    if y<-5:
+        y=-5
     tvc_angle_x.append(x)
     tvc_angle_y.append(y)
 
@@ -191,15 +198,19 @@ def pid(setpoint, axis):
     print("Kp = " + str(Kp))
     #Take the orientation and output torque
     orientation_data = sim_angular_position[-1]
+    last_orientation_data = sim_angular_position[-2]
     print(orientation_data)
     ori = 0
+    last_ori = 0
     if axis == "x":
         ori = orientation_data.x
+        last_ori = last_orientation_data.x
     if axis == "y":
         ori = orientation_data.y
+        last_ori = last_orientation_data.y
 
     # now do the PID
-    error = setpoint - ori
+    error = ori - setpoint
     print("set = " + str(setpoint) + " ori = " + str(ori) + " error = " + str(error))
     proportional = Kp*error
 
@@ -214,11 +225,12 @@ def pid(setpoint, axis):
         integral_y = integral_y + (Ki*error*time_step)
         integral = integral_y
     
-    derivative = Kd*error/time_step
+    derivative = Kd*(ori-last_ori)/time_step
+    print("deriv = " + str(derivative) + " ori = " + str(ori) + " last_ori = " + str(last_ori))
 
     output = proportional + integral + derivative
-    print("pid = " + str(output))
-    return output
+    print("****************pid = " + str(output))
+    return -output
 
 def step():
     global time
@@ -322,7 +334,7 @@ def main():
     angular_pos_y=[]
     angular_pos_z=[]
     for i in range (len(sim_linear_acceleration)):
-        t.append(i)
+        t.append(i*time_step)
         acc_x.append(sim_linear_acceleration[i].x)
         acc_y.append(sim_linear_acceleration[i].y)
         acc_z.append(sim_linear_acceleration[i].z)
