@@ -9,10 +9,12 @@ include(pico_extras_import_optional.cmake)
 project(my_project C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
-
+set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/bsp)
+set(PICO_BOARD enos)
 
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
+
 
 # rest of your project
 add_executable(main
@@ -25,7 +27,7 @@ add_compile_options(-Wall
         )
 
 # Add pico_stdlib library which aggregates commonly used features
-target_link_libraries(main pico_stdlib)
+target_link_libraries(main pico_stdlib hardware_pwm)
 
 # create map/bin/hex/uf2 file in addition to ELF.
 pico_add_extra_outputs(main)
