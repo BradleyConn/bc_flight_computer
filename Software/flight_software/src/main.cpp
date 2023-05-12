@@ -22,6 +22,7 @@ int main() {
 #include "pico/stdlib.h"
 #include "hardware/pwm.h"
 #include "../bsp/enos.h"
+#include "drivers/inc/drv_servo.h"
 
 int main() {
     /// \tag::setup_pwm[]
@@ -33,22 +34,17 @@ int main() {
     //then 125mhz gives 8ns period
     //20ms/8ns = 2,500,000 = "wrap" (minus 1 because 0 indexed)
     //then 1.5ms/8ns = 187,500 = "level" (minus 1 because 0 indexed)
+    auto servo_E = drv::servo(24, PWM_CHAN_A, drv::servo::servo_type::Analog, 0);
 
     // Tell GPIO 0 and 1 they are allocated to the PWM
     gpio_set_function(PICO_DEFAULT_LED_PIN_RED, GPIO_FUNC_PWM);
     gpio_set_function(PICO_DEFAULT_LED_PIN_GREEN, GPIO_FUNC_PWM);
-    gpio_set_function(24, GPIO_FUNC_PWM);
 
     uint slice_num = pwm_gpio_to_slice_num(PICO_DEFAULT_LED_PIN_RED);
-    uint slice_num_servo = pwm_gpio_to_slice_num(24);
-    pwm_config config = pwm_get_default_config();
-    pwm_config_set_clkdiv_int(&config, 64);
-    pwm_init(slice_num_servo, &config, true);
 
     // Set period of 4 cycles (0 to 3 inclusive)
     pwm_set_wrap(slice_num, 160000);
     pwm_set_wrap(slice_num+1, 160000);
-    pwm_set_wrap(slice_num_servo, 2500000/64);
     // Set channel A output high for one cycle before dropping
     pwm_set_chan_level(slice_num, PWM_CHAN_A, 3);
     pwm_set_chan_level(slice_num+1, PWM_CHAN_A, 3);
@@ -56,16 +52,13 @@ int main() {
     pwm_set_chan_level(slice_num, PWM_CHAN_B, 3);
     pwm_set_chan_level(slice_num+1, PWM_CHAN_B, 3);
 
-    pwm_set_chan_level(slice_num_servo, PWM_CHAN_A, 237500/64);
-    pwm_set_chan_level(slice_num_servo, PWM_CHAN_B, 237500/64);
     // Set the PWM running
     pwm_set_enabled(slice_num, true);
     pwm_set_enabled(slice_num+1, true);
-    pwm_set_enabled(slice_num_servo, true);
     /// \end::setup_pwm[]
     uint32_t pwm_red = 0;
     uint32_t pwm_green = 0;
-    int x =0;
+    int x =-5;
     for(int i=0; i<400;) {
 	    i++;
 	    i=i%400;
@@ -79,12 +72,11 @@ int main() {
 	    }
 	    if(i==10) {
 		    x++;
-    //pwm_set_chan_level(slice_num_servo, PWM_CHAN_A, x*500+137500/64);
-    //pwm_set_chan_level(slice_num_servo, PWM_CHAN_B, x*500+137500/64);
-    pwm_set_chan_level(slice_num_servo, PWM_CHAN_A, x*500+137500/64);
-    pwm_set_chan_level(slice_num_servo, PWM_CHAN_B, x*500+137500/64);
-
 		}
+	    if(i==0) {
+		    servo_E.set_angle_centi_degrees(x*3000);
+	    }
+	    if(x==5) { x =-5;}
 		
     // Set channel A output high for one cycle before dropping
     pwm_set_chan_level(slice_num, PWM_CHAN_A, pwm_red);
@@ -92,7 +84,7 @@ int main() {
     // Set initial B output high for three cycles before dropping
     pwm_set_chan_level(slice_num, PWM_CHAN_B, pwm_red);
     pwm_set_chan_level(slice_num+1, PWM_CHAN_B, pwm_green);
-    for (volatile int j =0; j<100000; j++){}
+    for (volatile int j =0; j<10000; j++){}
     }
 
     // Note we could also use pwm_set_gpio_level(gpio, x) which looks up the

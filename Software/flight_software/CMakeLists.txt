@@ -19,7 +19,12 @@ pico_sdk_init()
 # rest of your project
 add_executable(main
     src/main.cpp
+
+    src/drivers/src/drv_servo.cpp
 )
+target_include_directories(main
+ PRIVATE
+  src/drivers/inc/)
 add_compile_options(-Wall
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
