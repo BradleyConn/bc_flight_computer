@@ -21,6 +21,7 @@ add_executable(main
     src/main.cpp
 
     src/drivers/src/drv_servo.cpp
+    src/drivers/src/drv_led.cpp
 )
 target_include_directories(main
  PRIVATE
