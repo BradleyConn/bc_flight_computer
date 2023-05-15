@@ -12,7 +12,7 @@ enum servo_type {
     Digital = 0x01,
 };
 
-servo(uint gpio, uint channel, servo_type type, int32_t starting_angle_centi_degrees);
+servo(uint gpio, servo_type type, int32_t starting_angle_centi_degrees);
 ~servo();
 
 // Set the cent-degree angle! The degree * 100. So 4.32 is 432

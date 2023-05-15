@@ -8,7 +8,7 @@ namespace drv {
 class pwm_led {
 public:
 
-pwm_led(uint gpio, uint channel, uint8_t starting_pwm_percent);
+pwm_led(uint gpio, uint8_t starting_pwm_percent);
 ~pwm_led();
 
 void set_pwm(uint8_t percent);

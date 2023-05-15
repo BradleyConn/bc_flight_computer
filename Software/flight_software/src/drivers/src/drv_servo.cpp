@@ -2,25 +2,26 @@
 #include "hardware/pwm.h"
 
 namespace drv {
-servo::servo(uint gpio, uint channel, servo_type type, int32_t starting_angle_centi_degrees)
+servo::servo(uint gpio, servo_type type, int32_t starting_angle_centi_degrees)
     : _gpio(gpio)
-    , _channel(channel)
     , _type(type)
 {
     //125mhz gives 8ns period
     //20ms/8ns = 2,500,000 = "wrap" (minus 1 because 0 indexed)
     //then 1.5ms/8ns = 187,500 = "level" (minus 1 because 0 indexed)
 
-    // Tell GPIO 0 and 1 they are allocated to the PWM
     gpio_set_function(_gpio, GPIO_FUNC_PWM);
 
     _slice_num = pwm_gpio_to_slice_num(_gpio);
+    _channel = pwm_gpio_to_channel(_gpio);
 
     // servo takes a uint16_t which is 65535. Can't fit 2,500,000
     // 2,500,000/65535 ~=38. Use 64 div
+//    if (_gpio == 22) {
     pwm_config config = pwm_get_default_config();
     pwm_config_set_clkdiv_int(&config, 64);
     pwm_init(_slice_num, &config, true);
+//    }
 
     // The max counter
     if (_type == servo_type::Analog) {

@@ -2,13 +2,13 @@
 #include "hardware/pwm.h"
 
 namespace drv {
-pwm_led::pwm_led(uint gpio, uint channel, uint8_t starting_pwm_percent)
+pwm_led::pwm_led(uint gpio, uint8_t starting_pwm_percent)
     : _gpio(gpio)
-    , _channel(channel)
 {
     gpio_set_function(_gpio, GPIO_FUNC_PWM);
 
     _slice_num = pwm_gpio_to_slice_num(_gpio);
+    _channel = pwm_gpio_to_channel(_gpio);
 
     // The max counter
     pwm_set_wrap(_slice_num, 100);

@@ -35,9 +35,13 @@ int main() {
     //then 125mhz gives 8ns period
     //20ms/8ns = 2,500,000 = "wrap" (minus 1 because 0 indexed)
     //then 1.5ms/8ns = 187,500 = "level" (minus 1 because 0 indexed)
-    auto servo_E = drv::servo(24, PWM_CHAN_A, drv::servo::servo_type::Analog, 0);
-    auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED, PWM_CHAN_B, 50);
-    auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, PWM_CHAN_B, 50);
+    auto servo_E = drv::servo(24, drv::servo::servo_type::Analog, 0);
+    auto servo_D = drv::servo(22, drv::servo::servo_type::Analog, 0);
+    auto servo_C = drv::servo(21, drv::servo::servo_type::Analog, 0);
+    auto servo_B = drv::servo(18, drv::servo::servo_type::Analog, 0);
+    auto servo_A = drv::servo(16, drv::servo::servo_type::Analog, 0);
+    auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
+    auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
 
     while(1){
         uint32_t pwm_red = 0;
@@ -56,7 +60,11 @@ int main() {
             	    x++;
             	}
                 if(i==0) {
-            	    servo_E.set_angle_centi_degrees(x*3000);
+            	    servo_E.set_angle_centi_degrees(x*300);
+            	    servo_D.set_angle_centi_degrees(x*300);
+            	    servo_C.set_angle_centi_degrees(x);
+            	    servo_B.set_angle_centi_degrees(x*-300);
+            	    servo_A.set_angle_centi_degrees(x*-300);
                 }
                 if(x==5) { x =-5;}
         led_r.set_pwm(pwm_red);
