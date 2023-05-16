@@ -22,6 +22,7 @@ add_executable(main
 
     src/drivers/src/drv_servo.cpp
     src/drivers/src/drv_led.cpp
+    src/drivers/src/drv_bmp280.cpp
 )
 target_include_directories(main
  PRIVATE
@@ -33,7 +34,7 @@ add_compile_options(-Wall
         )
 
 # Add pico_stdlib library which aggregates commonly used features
-target_link_libraries(main pico_stdlib hardware_pwm)
+target_link_libraries(main pico_stdlib hardware_pwm hardware_spi)
 
 # create map/bin/hex/uf2 file in addition to ELF.
 pico_add_extra_outputs(main)

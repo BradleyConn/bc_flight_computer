@@ -24,6 +24,7 @@ int main() {
 #include "../bsp/enos.h"
 #include "drivers/inc/drv_servo.h"
 #include "drivers/inc/drv_led.h"
+#include "drivers/inc/drv_bmp280.h"
 
 int main() {
     /// \tag::setup_pwm[]
@@ -42,6 +43,7 @@ int main() {
     auto servo_A = drv::servo(16, drv::servo::servo_type::Analog, 0);
     auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
     auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
+    auto bmp280 = drv::bmp280(10, 8, 11, 9, drv::bmp280::spi_module_1);
 
     while(1){
         uint32_t pwm_red = 0;
