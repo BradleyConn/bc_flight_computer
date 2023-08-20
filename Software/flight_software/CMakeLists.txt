@@ -11,6 +11,7 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 set(PICO_BOARD_HEADER_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/bsp)
 set(PICO_BOARD enos)
+set(CMAKE_BUILD_TYPE Debug)
 
 # initialize the Raspberry Pi Pico SDK
 pico_sdk_init()
@@ -23,6 +24,7 @@ add_executable(main
     src/drivers/src/drv_servo.cpp
     src/drivers/src/drv_led.cpp
     src/drivers/src/drv_bmp280.cpp
+    src/drivers/src/drv_bmi088.cpp
 )
 target_include_directories(main
  PRIVATE
