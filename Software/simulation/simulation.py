@@ -35,6 +35,46 @@ velocity = [xyz(0,0,0)]
 position = [xyz(0,0,0)]
 yawPitchRoll = [xyz(.1,0,0)]
 
+#MMOI=kg*m^2 = m*g*s^2*d^2/(4*pi^2*d_s)
+#s=period of rotation in seconds
+#d = distance from CoM to string
+#d_s length of string from table
+
+#Moment arm in M
+#example values
+MMOI = .04
+MA = 0.28
+
+#in - force on axis
+#out - anglw, angluar velocity, pos, vel, accel
+
+#torque_x = force_x * moment arm (distance to tvc mount)
+#torque_y = force_y * moment arm (distance to tvc mount)
+
+#get a desired torque from state space and then calculate servo angle
+#apply transfer function and whatever smoothing
+#get servo angle and make back into torque for new state
+
+
+#Display
+#Orientation
+#TVC Envelope
+#Pyrotechnics
+#Altitude
+#Accelerometers
+#Gyroscopes
+#RawData
+#    ox, oy, ox
+#    ax, ay, ax
+#    gx, gy, gx
+#    altitude
+#    temp 
+#    volt
+#    tvc-y
+#    tvc-z
+
+#accelerometer needed for translation, liftoff detect, angle relative to earth
+
 def print_stats():
     print("Altitude (M): " + str(altitude_m))
     print("Acceleration (M/S/S): " + str(acceleration_mps2))
