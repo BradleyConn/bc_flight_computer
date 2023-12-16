@@ -67,6 +67,8 @@ namespace drv
 
     void bmi088::init()
     {
+        // After POR the gyro is in normal mode, and the accel is in suspend mode.
+        // So start up the accel.
         sleep_ms(1);
         // Do a dummy read to set the accel to SPI mode.
         puts("Dummy read expect 0x00");
@@ -125,6 +127,10 @@ namespace drv
         gyro_write_register(0x16, 0x01);
         // Set the interrupt 3 pin to active
         gyro_write_register(0x17, 0x01);
+        // Set the range to 2000 deg/s, 61 milli-degree/sec/LSB
+        gyro_write_register(0x0F, 0x00);
+        // Set the bandwidth to 200Hz
+        gyro_write_register(0x10, 0x04);
     }
 
     void bmi088::getData()
