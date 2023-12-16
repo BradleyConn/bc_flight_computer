@@ -49,28 +49,27 @@ int main()
     // auto servo_A = drv::servo(16, drv::servo::servo_type::Analog, 0);
     // auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
     // auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
-    auto bmp280 = drv::bmp280(10, 8, 11, 9, drv::bmp280::spi_module_1);
-    auto bmi088 = drv::bmi088(2, 0, 3, 1, 5, drv::bmi088::spi_module_0);
+    auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280, PICO_DEFAULT_SPI_CS_PIN_BMP280, drv::bmp280::spi_module_1);
+    auto bmi088 = drv::bmi088(PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088, PICO_DEFAULT_SPI_MOSI_PIN_BMI088, PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
 
     puts("Init bmp280!");
     bmp280.init();
     // bmp280.forever_test();
     puts("Init bmi088!");
     bmi088.init();
-    puts("Init bmi088!");
 
-    bmi088.init();
-
-    while (1)
+    /*while (1)
     {
         bmi088.getData();
         for (volatile int j = 0; j < 1000000; j++)
         {
         }
     }
+    */
 
     while (1)
     {
+        printf("Loop\n!");
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
         int x = -5;
