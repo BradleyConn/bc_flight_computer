@@ -1,5 +1,5 @@
-#include <stdio.h>
 #include "pico/stdlib.h"
+#include <stdio.h>
 
 #if 0
 int main() {
@@ -21,13 +21,13 @@ int main() {
 
 // Output PWM signals on pins 0 and 1
 
-#include "pico/stdlib.h"
-#include "hardware/pwm.h"
 #include "../bsp/enos.h"
-#include "drivers/inc/drv_servo.h"
-#include "drivers/inc/drv_led.h"
-#include "drivers/inc/drv_bmp280.h"
 #include "drivers/inc/drv_bmi088.h"
+#include "drivers/inc/drv_bmp280.h"
+#include "drivers/inc/drv_led.h"
+#include "drivers/inc/drv_servo.h"
+#include "hardware/pwm.h"
+#include "pico/stdlib.h"
 
 int main()
 {
@@ -49,8 +49,14 @@ int main()
     // auto servo_A = drv::servo(16, drv::servo::servo_type::Analog, 0);
     // auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
     // auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
-    auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280, PICO_DEFAULT_SPI_CS_PIN_BMP280, drv::bmp280::spi_module_1);
-    auto bmi088 = drv::bmi088(PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088, PICO_DEFAULT_SPI_MOSI_PIN_BMI088, PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
+    auto bmp280 = drv::bmp280(
+        PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280,
+        PICO_DEFAULT_SPI_MOSI_PIN_BMP280, PICO_DEFAULT_SPI_CS_PIN_BMP280,
+        drv::bmp280::spi_module_1);
+    auto bmi088 = drv::bmi088(
+        PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088,
+        PICO_DEFAULT_SPI_MOSI_PIN_BMI088, PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088,
+        PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
 
     puts("Init bmp280!");
     bmp280.init();
@@ -67,44 +73,35 @@ int main()
     }
     */
 
-    while (1)
-    {
+    while (1) {
         printf("Loop\n!");
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
         int x = -5;
-        for (int i = 0; i < 50; i++)
-        {
-            if (i > 25)
-            {
+        for (int i = 0; i < 50; i++) {
+            if (i > 25) {
                 pwm_green = i - 25;
                 pwm_red = 50 - i;
-            }
-            else
-            {
+            } else {
                 pwm_green = 25 - i;
                 pwm_red = i;
             }
-            if (i == 10)
-            {
+            if (i == 10) {
                 x++;
             }
-            if (i == 0)
-            {
+            if (i == 0) {
                 // servo_E.set_angle_centi_degrees(x*300);
                 // servo_D.set_angle_centi_degrees(x*300);
                 // servo_C.set_angle_centi_degrees(x);
                 // servo_B.set_angle_centi_degrees(x*-300);
                 // servo_A.set_angle_centi_degrees(x*-300);
             }
-            if (x == 5)
-            {
+            if (x == 5) {
                 x = -5;
             }
             // led_r.set_pwm(pwm_red);
             // led_g.set_pwm(pwm_green);
-            for (volatile int j = 0; j < 1000000; j++)
-            {
+            for (volatile int j = 0; j < 1000000; j++) {
             }
         }
     }

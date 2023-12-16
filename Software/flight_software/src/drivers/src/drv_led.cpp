@@ -1,9 +1,10 @@
 #include "../inc/drv_led.h"
 #include "hardware/pwm.h"
 
-namespace drv {
-pwm_led::pwm_led(uint gpio, uint8_t starting_pwm_percent)
-    : _gpio(gpio)
+namespace drv
+{
+
+pwm_led::pwm_led(uint gpio, uint8_t starting_pwm_percent) : _gpio(gpio)
 {
     gpio_set_function(_gpio, GPIO_FUNC_PWM);
 
@@ -25,7 +26,6 @@ pwm_led::~pwm_led()
 void pwm_led::set_pwm(uint8_t percent)
 {
     pwm_set_chan_level(_slice_num, _channel, percent);
-
 }
 
 } //namespace drv
