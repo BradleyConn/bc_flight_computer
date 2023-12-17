@@ -39,8 +39,9 @@ private:
     void gyro_read_registers(uint8_t reg, uint8_t* buf, uint16_t len);
     void write_register(uint8_t reg, uint8_t data, cs_type cs);
     void read_registers(uint8_t reg, uint8_t* buf, uint16_t len, cs_type cs);
-    void print_reg(uint8_t reg);
-    void print_reg_expected(uint8_t reg, uint8_t expected);
+    void accel_print_reg(uint8_t reg);
+    void accel_print_reg_expected(uint8_t reg, uint8_t expected);
+    void accel_register_dump();
 
 private:
     uint _sclk;

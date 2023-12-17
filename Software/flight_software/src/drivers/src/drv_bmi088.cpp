@@ -18,8 +18,8 @@ bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs,
     } else if (spi_module == spi_module_1) {
         _spi_inst = spi1;
     }
-    // 0.5MHz (bmi can handle 10mhz)
-    spi_init(_spi_inst, 500 * 1000);
+    // 5MHz (bmi can handle 10mhz)
+    spi_init(_spi_inst, 5000 * 1000);
     gpio_set_function(_sclk, GPIO_FUNC_SPI);
     gpio_set_function(_miso, GPIO_FUNC_SPI);
     gpio_set_function(_mosi, GPIO_FUNC_SPI);
@@ -54,19 +54,39 @@ uint8_t bmi088::readGyroID()
     return id;
 }
 
-void bmi088::print_reg(uint8_t reg)
+void bmi088::accel_print_reg(uint8_t reg)
 {
     uint8_t reg_val = 0xa5;
     accel_read_registers(reg, &reg_val, 1);
     printf("Reg 0x%02X, Val = 0x%02X\n", reg, reg_val);
 }
 
-void bmi088::print_reg_expected(uint8_t reg, uint8_t expected)
+void bmi088::accel_print_reg_expected(uint8_t reg, uint8_t expected)
 {
     uint8_t reg_val = 0xa5;
     accel_read_registers(reg, &reg_val, 1);
     printf("Reg 0x%02X, expected = 0x%02X, Val = 0x%02X\n", reg, expected,
            reg_val);
+}
+
+void bmi088::accel_register_dump()
+{
+    accel_print_reg_expected(0x7D, 0x00);
+    accel_print_reg_expected(0x7C, 0x03);
+    accel_print_reg_expected(0x6D, 0x00);
+    accel_print_reg_expected(0x58, 0x00);
+    accel_print_reg_expected(0x54, 0x00);
+    accel_print_reg_expected(0x53, 0x00);
+    accel_print_reg_expected(0x49, 0x10);
+    accel_print_reg_expected(0x48, 0x02);
+    accel_print_reg_expected(0x47, 0x02);
+    accel_print_reg_expected(0x46, 0x00);
+    accel_print_reg_expected(0x45, 0x80);
+    accel_print_reg_expected(0x41, 0x01);
+    accel_print_reg_expected(0x40, 0xA8);
+    accel_print_reg_expected(0x03, 0x00);
+    accel_print_reg_expected(0x02, 0x00);
+    accel_print_reg_expected(0x00, 0x1E);
 }
 
 void bmi088::init()
@@ -75,12 +95,13 @@ void bmi088::init()
     // So start up the accel.
     sleep_ms(1);
     // Do a dummy read to set the accel to SPI mode.
-    puts("Dummy read expect 0x00");
+    puts("Dummy read to trigger SPI mode - expect 0x00");
     readAccelID();
+    puts("Do a soft reset");
     accel_write_register(0x7E, 0xB6);
     sleep_ms(50);
     // Do a dummy read to set the accel to SPI mode.
-    puts("Dummy read expect 0x00");
+    puts("Dummy read to trigger SPI mode - expect 0x00");
     readAccelID();
 
     // TODO: better error handling.
@@ -91,22 +112,7 @@ void bmi088::init()
         puts("error!");
     }
 
-    print_reg_expected(0x7D, 0x00);
-    print_reg_expected(0x7C, 0x03);
-    print_reg_expected(0x6D, 0x00);
-    print_reg_expected(0x58, 0x00);
-    print_reg_expected(0x54, 0x00);
-    print_reg_expected(0x53, 0x00);
-    print_reg_expected(0x49, 0x10);
-    print_reg_expected(0x48, 0x02);
-    print_reg_expected(0x47, 0x02);
-    print_reg_expected(0x46, 0x00);
-    print_reg_expected(0x45, 0x80);
-    print_reg_expected(0x41, 0x01);
-    print_reg_expected(0x40, 0xA8);
-    print_reg_expected(0x03, 0x00);
-    print_reg_expected(0x02, 0x00);
-    print_reg_expected(0x00, 0x1E);
+    //accel_register_dump();
 
     // Set 4 to reg 0x7D to turn on accelerometer
     accel_write_register(0x7D, 0x04);
