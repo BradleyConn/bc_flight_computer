@@ -74,7 +74,14 @@ int main()
     */
 
     while (1) {
-        printf("Loop\n!");
+        printf("Loop!\n");
+        auto bmi088RawData = bmi088.get_data_raw();
+        puts("raw");
+        bmi088.print_data_raw(bmi088RawData);
+        auto bmi088ConvertedData = bmi088.convert_data(bmi088RawData);
+        puts("converted");
+        //bmi088.print_data_converted(bmi088ConvertedData);
+        bmi088.print_data_converted_floats(bmi088ConvertedData);
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
         int x = -5;

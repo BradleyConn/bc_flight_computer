@@ -4,9 +4,48 @@
 #include "hardware/spi.h"
 #include "pico/stdlib.h"
 
+struct AccelDataRaw {
+    int16_t x;
+    int16_t y;
+    int16_t z;
+    uint32_t time;
+};
+struct AccelTemperatureRaw {
+    int16_t temperature;
+};
+struct GyroDataRaw {
+    int32_t x;
+    int32_t y;
+    int32_t z;
+};
+struct bmi088DatasetRaw {
+    AccelDataRaw accel_data_raw;
+    AccelTemperatureRaw accel_temperature_raw;
+    GyroDataRaw gyro_data_raw;
+};
+
+struct AccelDataConverted {
+    int32_t x_mg;
+    int32_t y_mg;
+    int32_t z_mg;
+    uint32_t time_us;
+};
+struct AccelTemperatureConverted {
+    int32_t temperature_deg_mC;
+};
+struct GyroDataConverted {
+    int32_t x_milli_degrees_per_sec;
+    int32_t y_milli_degrees_per_sec;
+    int32_t z_milli_degrees_per_sec;
+};
+struct bmi088DatasetConverted {
+    AccelDataConverted accel_data_converted;
+    AccelTemperatureConverted accel_temperature_converted;
+    GyroDataConverted gyro_data_converted;
+};
+
 namespace drv
 {
-
 class bmi088
 {
 public:
@@ -19,13 +58,22 @@ public:
         gyro = 0x01,
     };
 
-    bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs,
-           spi_module_num spi_module);
+    bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi_module_num spi_module);
     ~bmi088();
-    uint8_t readGyroID();
-    uint8_t readAccelID();
+    uint8_t read_gyro_id();
+    uint8_t read_accel_id();
     void init();
-    void getData();
+    AccelDataRaw accel_get_data_raw();
+    AccelTemperatureRaw accel_get_temperature_raw();
+    GyroDataRaw gyro_get_data_raw();
+    bmi088DatasetRaw get_data_raw();
+    AccelDataConverted accel_convert_data(AccelDataRaw accel_data_raw);
+    AccelTemperatureConverted accel_convert_temperature(AccelTemperatureRaw accel_temperature_raw);
+    GyroDataConverted gyro_convert_data(GyroDataRaw gyro_data_raw);
+    bmi088DatasetConverted convert_data(bmi088DatasetRaw bmi088_dataset_raw);
+    void print_data_raw(bmi088DatasetRaw bmi088_dataset_raw);
+    void print_data_converted(bmi088DatasetConverted bmi088_dataset_converted);
+    void print_data_converted_floats(bmi088DatasetConverted bmi088_dataset_converted);
 
 private:
     // Taken from pico examples
@@ -51,6 +99,5 @@ private:
     uint _gyro_cs;
     spi_inst_t* _spi_inst;
 }; // class bmi088
-
 }; // namespace drv
 #endif

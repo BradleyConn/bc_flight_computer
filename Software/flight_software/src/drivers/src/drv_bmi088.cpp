@@ -1,12 +1,13 @@
+#define __STDC_FORMAT_MACROS
 #include "../inc/drv_bmi088.h"
+#include <inttypes.h>
 #include <stdio.h>
 
 // Implementation stripped almost exactly from the the pico examples
 namespace drv
 {
 
-bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs,
-               spi_module_num spi_module)
+bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi_module_num spi_module)
     : _sclk(sclk)
     , _miso(miso)
     , _mosi(mosi)
@@ -38,7 +39,7 @@ bmi088::~bmi088()
 {
 }
 
-uint8_t bmi088::readAccelID()
+uint8_t bmi088::read_accel_id()
 {
     uint8_t id;
     accel_read_registers(0x00, &id, 1);
@@ -46,7 +47,7 @@ uint8_t bmi088::readAccelID()
     return id;
 }
 
-uint8_t bmi088::readGyroID()
+uint8_t bmi088::read_gyro_id()
 {
     uint8_t id;
     gyro_read_registers(0x00, &id, 1);
@@ -65,8 +66,7 @@ void bmi088::accel_print_reg_expected(uint8_t reg, uint8_t expected)
 {
     uint8_t reg_val = 0xa5;
     accel_read_registers(reg, &reg_val, 1);
-    printf("Reg 0x%02X, expected = 0x%02X, Val = 0x%02X\n", reg, expected,
-           reg_val);
+    printf("Reg 0x%02X, expected = 0x%02X, Val = 0x%02X\n", reg, expected, reg_val);
 }
 
 void bmi088::accel_register_dump()
@@ -96,19 +96,19 @@ void bmi088::init()
     sleep_ms(1);
     // Do a dummy read to set the accel to SPI mode.
     puts("Dummy read to trigger SPI mode - expect 0x00");
-    readAccelID();
+    read_accel_id();
     puts("Do a soft reset");
     accel_write_register(0x7E, 0xB6);
     sleep_ms(50);
     // Do a dummy read to set the accel to SPI mode.
     puts("Dummy read to trigger SPI mode - expect 0x00");
-    readAccelID();
+    read_accel_id();
 
     // TODO: better error handling.
-    while (readAccelID() != 0x1E) {
+    while (read_accel_id() != 0x1E) {
         puts("error!");
     }
-    if (readGyroID() != 0x0F) {
+    if (read_gyro_id() != 0x0F) {
         puts("error!");
     }
 
@@ -141,40 +141,239 @@ void bmi088::init()
     gyro_write_register(0x10, 0x04);
 }
 
-void bmi088::getData()
+AccelDataRaw bmi088::accel_get_data_raw()
 {
-    uint8_t data_u8[9];
-    int16_t data_i16[9];
-    for (int i = 0; i < sizeof(data_u8); i++) {
-        data_i16[i] = 0;
-        data_u8[i] = 0;
+    uint8_t accel_data_u8[9];
+    int16_t accel_data_i16[9];
+    for (int i = 0; i < sizeof(accel_data_u8); i++) {
+        accel_data_i16[i] = 0;
+        accel_data_u8[i] = 0;
     }
 
-    // accel_read_registers(0x12, data_u8, sizeof(data_u8));
-    // accel_read_registers(0x12, &(data_u8[0]), 1);
-    // accel_read_registers(0x13, &(data_u8[1]), 1);
-    // accel_read_registers(0x14, &(data_u8[2]), 1);
-    // accel_read_registers(0x15, &(data_u8[3]), 1);
-    // accel_read_registers(0x16, &(data_u8[4]), 1);
-    // accel_read_registers(0x17, &(data_u8[5]), 1);
-    accel_read_registers(0x12, data_u8, 9);
+    accel_read_registers(0x12, accel_data_u8, 9);
 
-    // uint8_t time = 0;
-
-    // accel_read_registers(0x1A, &time, 1);
-
-    for (int i = 0; i < sizeof(data_u8); i++) {
-        data_i16[i] = data_u8[i];
+    for (int i = 0; i < sizeof(accel_data_u8); i++) {
+        accel_data_i16[i] = accel_data_u8[i];
     }
-    printf("X = %d\n", (int16_t)((data_i16[1] << 8) + data_i16[0]));
-    printf("Y = %d\n", (int16_t)((data_i16[3] << 8) + data_i16[2]));
-    printf("Z = %d\n", (int16_t)((data_i16[5] << 8) + data_i16[4]));
-    // printf("X MSB, LSB = %d, %d, time = %d\n", data_u8[1], data_u8[0], time);
-    printf("X HSB, MSB, LSB = %03d, %03d, %03d\n", data_u8[8], data_u8[7],
-           data_u8[6]);
 
+    AccelDataRaw accelDataRaw;
+    accelDataRaw.x = (int16_t)((accel_data_i16[1] << 8) + accel_data_i16[0]);
+    accelDataRaw.y = (int16_t)((accel_data_i16[3] << 8) + accel_data_i16[2]);
+    accelDataRaw.z = (int16_t)((accel_data_i16[5] << 8) + accel_data_i16[4]);
+    accelDataRaw.time = (accel_data_u8[8] << 16) + (accel_data_u8[7] << 8) + accel_data_u8[6];
+
+    return accelDataRaw;
+}
+
+AccelDataConverted bmi088::accel_convert_data(AccelDataRaw accel_data_raw)
+{
+    AccelDataConverted accelDataConverted;
+    //pulled from datasheet - val_in_mg = raw_int16_t /32768 * 1000 * 2^(range+1) * 1.5
+    constexpr auto range24g = 3;
+    //Do some earlier evaluation (1000*1.5=1500) so no floats are needed
+    //Shift instead of trying to constexpr a pow - 2^(range24g+1) = 1<<range24g+1
+    constexpr int64_t raw_to_uG = 1500 * (1 << (range24g + 1));
+
+    accelDataConverted.x_mg = (int64_t)(accel_data_raw.x * raw_to_uG) / 32768;
+    accelDataConverted.y_mg = (int64_t)(accel_data_raw.y * raw_to_uG) / 32768;
+    accelDataConverted.z_mg = (int64_t)(accel_data_raw.z * raw_to_uG) / 32768;
+    // LSB is 39.0625 us
+    accelDataConverted.time_us = ((uint64_t)accel_data_raw.time * (uint64_t)390625) / (uint64_t)10000;
+    return accelDataConverted;
+}
+
+AccelTemperatureRaw bmi088::accel_get_temperature_raw()
+{
+    //temperature reg only updates every 1.28 secconds - maybe don't use it?
+    uint8_t temperature_reg[2];
+    uint16_t temperature_u11 = 0;
+    int16_t temperature_i11 = 0;
+    accel_read_registers(0x22, temperature_reg, 2);
+    //pulled straight from the data sheet
+    temperature_u11 = (temperature_reg[0] * 8) + (temperature_reg[1] / 32);
+    if (temperature_u11 > 1023) {
+        temperature_i11 = temperature_u11 - 2048;
+    } else {
+        temperature_i11 = temperature_u11;
+    }
+    AccelTemperatureRaw accelTemperatureRaw;
+    accelTemperatureRaw.temperature = temperature_i11;
+    return accelTemperatureRaw;
+}
+AccelTemperatureConverted bmi088::accel_convert_temperature(AccelTemperatureRaw accel_temperature_raw)
+{
+    AccelTemperatureConverted accelTemperatureConverted;
+    accelTemperatureConverted.temperature_deg_mC = (accel_temperature_raw.temperature * 125) + 23 * 1000;
+    return accelTemperatureConverted;
+}
+
+GyroDataRaw bmi088::gyro_get_data_raw()
+{
+    uint8_t gyro_data_u8[6];
+    int16_t gyro_data_i16[6];
+    for (int i = 0; i < sizeof(gyro_data_u8); i++) {
+        gyro_data_i16[i] = 0;
+        gyro_data_u8[i] = 0;
+    }
+
+    gyro_read_registers(0x02, gyro_data_u8, 6);
+
+    for (int i = 0; i < sizeof(gyro_data_u8); i++) {
+        gyro_data_i16[i] = gyro_data_u8[i];
+    }
+
+    GyroDataRaw gyroDataRaw;
+    gyroDataRaw.x = (int16_t)((gyro_data_i16[1] << 8) + gyro_data_i16[0]);
+    gyroDataRaw.y = (int16_t)((gyro_data_i16[3] << 8) + gyro_data_i16[2]);
+    gyroDataRaw.z = (int16_t)((gyro_data_i16[5] << 8) + gyro_data_i16[4]);
+
+    return gyroDataRaw;
+}
+
+GyroDataConverted bmi088::gyro_convert_data(GyroDataRaw gyro_data_raw)
+{
+    GyroDataConverted gyroDataConverted;
+    //  rate of 2000 deg/sec is 61 milli-degrees/sec/LSB
+    gyroDataConverted.x_milli_degrees_per_sec = gyro_data_raw.x * 61;
+    gyroDataConverted.y_milli_degrees_per_sec = gyro_data_raw.y * 61;
+    gyroDataConverted.z_milli_degrees_per_sec = gyro_data_raw.z * 61;
+    return gyroDataConverted;
+}
+
+bmi088DatasetRaw bmi088::get_data_raw()
+{
+    bmi088DatasetRaw bmi088DatasetRaw;
+    bmi088DatasetRaw.accel_data_raw = accel_get_data_raw();
+    bmi088DatasetRaw.accel_temperature_raw = accel_get_temperature_raw();
+    bmi088DatasetRaw.gyro_data_raw = gyro_get_data_raw();
+    return bmi088DatasetRaw;
+}
+
+bmi088DatasetConverted bmi088::convert_data(bmi088DatasetRaw bmi088DatasetRaw)
+{
+    bmi088DatasetConverted bmi088DatasetConverted;
+    bmi088DatasetConverted.accel_data_converted = accel_convert_data(bmi088DatasetRaw.accel_data_raw);
+    bmi088DatasetConverted.accel_temperature_converted = accel_convert_temperature(bmi088DatasetRaw.accel_temperature_raw);
+    bmi088DatasetConverted.gyro_data_converted = gyro_convert_data(bmi088DatasetRaw.gyro_data_raw);
+    return bmi088DatasetConverted;
+}
+
+void bmi088::print_data_raw(bmi088DatasetRaw bmi088_dataset_raw)
+{
+    printf("Accel X = %d\n", bmi088_dataset_raw.accel_data_raw.x);
+    printf("Accel Y = %d\n", bmi088_dataset_raw.accel_data_raw.y);
+    printf("Accel Z = %d\n", bmi088_dataset_raw.accel_data_raw.z);
+    printf("Accel Time = %lu\n", bmi088_dataset_raw.accel_data_raw.time);
+    printf("Accel Temp = %d\n", bmi088_dataset_raw.accel_temperature_raw.temperature);
+    printf("Gyro X = %ld\n", bmi088_dataset_raw.gyro_data_raw.x);
+    printf("Gyro Y = %ld\n", bmi088_dataset_raw.gyro_data_raw.y);
+    printf("Gyro Z = %ld\n", bmi088_dataset_raw.gyro_data_raw.z);
+}
+
+void bmi088::print_data_converted(bmi088DatasetConverted bmi088_dataset_converted)
+{
+    printf("Accel X = %ld mg\n", bmi088_dataset_converted.accel_data_converted.x_mg);
+    printf("Accel Y = %ld mg\n", bmi088_dataset_converted.accel_data_converted.y_mg);
+    printf("Accel Z = %ld mg\n", bmi088_dataset_converted.accel_data_converted.z_mg);
+    printf("Accel Time = %lu us\n", bmi088_dataset_converted.accel_data_converted.time_us);
+    printf("Accel Temp = %ld deg mC\n", bmi088_dataset_converted.accel_temperature_converted.temperature_deg_mC);
+    printf("Gyro X = %ld milli-degrees/sec\n", bmi088_dataset_converted.gyro_data_converted.x_milli_degrees_per_sec);
+    printf("Gyro Y = %ld milli-degrees/sec\n", bmi088_dataset_converted.gyro_data_converted.y_milli_degrees_per_sec);
+    printf("Gyro Z = %ld milli-degrees/sec\n", bmi088_dataset_converted.gyro_data_converted.z_milli_degrees_per_sec);
+}
+
+void bmi088::print_data_converted_floats(bmi088DatasetConverted bmi088_dataset_converted)
+{
+    printf("Accel X = %.2f g\n", static_cast<float>(bmi088_dataset_converted.accel_data_converted.x_mg) / 1000.0);
+    printf("Accel Y = %.2f g\n", static_cast<float>(bmi088_dataset_converted.accel_data_converted.y_mg) / 1000.0);
+    printf("Accel Z = %.2f g\n", static_cast<float>(bmi088_dataset_converted.accel_data_converted.z_mg) / 1000.0);
+    printf("Accel Time = %.2f ms\n", static_cast<float>(bmi088_dataset_converted.accel_data_converted.time_us) / 1000.0);
+    printf("Accel Temp = %.2f deg C\n", static_cast<float>(bmi088_dataset_converted.accel_temperature_converted.temperature_deg_mC) / 1000.0);
+    printf("Gyro X = %.2f deg/s\n", static_cast<float>(bmi088_dataset_converted.gyro_data_converted.x_milli_degrees_per_sec) / 1000.0);
+    printf("Gyro Y = %.2f deg/s\n", static_cast<float>(bmi088_dataset_converted.gyro_data_converted.y_milli_degrees_per_sec) / 1000.0);
+    printf("Gyro Z = %.2f deg/s\n", static_cast<float>(bmi088_dataset_converted.gyro_data_converted.z_milli_degrees_per_sec) / 1000.0);
+}
+
+/*
+GyroMilliDegreePerSec bmi088::gyro_get_data()
+{
+    uint8_t gyro_data_u8[6];
+    int16_t gyro_data_i16[6];
+    for (int i = 0; i < sizeof(gyro_data_u8); i++) {
+        gyro_data_i16[i] = 0;
+        gyro_data_u8[i] = 0;
+    }
+
+    gyro_read_registers(0x02, gyro_data_u8, 6);
+
+    for (int i = 0; i < sizeof(gyro_data_u8); i++) {
+        gyro_data_i16[i] = gyro_data_u8[i];
+    }
+
+    //  rate of 2000 deg/sec is 61 milli-degrees/sec/LSB
+    auto gyro_x = (int16_t)((gyro_data_i16[1] << 8) + gyro_data_i16[0]);
+    auto gyro_x_milli_degrees_per_sec = gyro_x * 61;
+    auto gyro_y = (int16_t)((gyro_data_i16[3] << 8) + gyro_data_i16[2]);
+    auto gyro_y_milli_degrees_per_sec = gyro_y * 61;
+    auto gyro_z = (int16_t)((gyro_data_i16[5] << 8) + gyro_data_i16[4]);
+    auto gyro_z_milli_degrees_per_sec = gyro_z * 61;
+
+    GyroMilliDegreePerSec gyroMilliDegreePerSec;
+    gyroMilliDegreePerSec.x = gyro_x_milli_degrees_per_sec;
+    gyroMilliDegreePerSec.y = gyro_y_milli_degrees_per_sec;
+    gyroMilliDegreePerSec.z = gyro_z_milli_degrees_per_sec;
+
+    printf("Gyro X = %d milli-degrees/sec\n", gyroMilliDegreePerSec.x);
+    printf("Gyro Y = %d milli-degrees/sec\n", gyroMilliDegreePerSec.y);
+    printf("Gyro Z = %d milli-degrees/sec\n", gyroMilliDegreePerSec.z);
+
+    return gyroMilliDegreePerSec;
+}
+
+AccelMilliG bmi088::accel_get_data()
+{
+    AccelMilliG accelMilliG;
+    uint8_t accel_data_u8[9];
+    int16_t accel_data_i16[9];
+    for (int i = 0; i < sizeof(accel_data_u8); i++) {
+        accel_data_i16[i] = 0;
+        accel_data_u8[i] = 0;
+    }
+
+    accel_read_registers(0x12, accel_data_u8, 9);
+
+    for (int i = 0; i < sizeof(accel_data_u8); i++) {
+        accel_data_i16[i] = accel_data_u8[i];
+    }
+    int16_t accel_x = (int16_t)((accel_data_i16[1] << 8) + accel_data_i16[0]);
+    int16_t accel_y = (int16_t)((accel_data_i16[3] << 8) + accel_data_i16[2]);
+    int16_t accel_z = (int16_t)((accel_data_i16[5] << 8) + accel_data_i16[4]);
+
+    //pulled from datasheet
+    constexpr range24g = 0x03;
+    constexpr raw_to_uG = 1000 * 2 ^ (range24g + 1) * 1.5;
+
+    accelMilliG.x = accel_x * raw_to_uG / 1000;
+    accelMilliG.y = accel_y * raw_to_uG / 1000;
+    accelMilliG.z = accel_z * raw_to_uG / 1000;
+
+    // Make the time one value
+    uint32_t time_raw = (accel_data_u8[8] << 16) + (accel_data_u8[7] << 8) + accel_data_u8[6];
+    printf("Time = %lu\n", time);
+    // LSB is 39.0625 us
+    printf("Time (ms) = %" PRIu64 "\n", ((uint64_t)time * (uint64_t)390625) / (uint64_t)10000000);
+
+    return accelMilliG;
+}
+
+void bmi088::get_data()
+{
+    accel_get_data();
+    accel_get_temperature_deg_C();
+    gyro_get_data();
     return;
 }
+*/
 
 inline void bmi088::accel_cs_select()
 {
