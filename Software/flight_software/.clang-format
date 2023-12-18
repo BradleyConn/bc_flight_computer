@@ -39,7 +39,7 @@ BreakBeforeBraces: Linux
 BreakBeforeInheritanceComma: false
 BreakBeforeTernaryOperators: true
 BreakConstructorInitializersBeforeComma: true
-ColumnLimit: 80
+ColumnLimit: 160
 CommentPragmas: '^[^ ]'
 CompactNamespaces: false
 ConstructorInitializerAllOnOneLineOrOnePerLine: true
