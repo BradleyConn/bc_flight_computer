@@ -19,8 +19,11 @@ bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi
     } else if (spi_module == spi_module_1) {
         _spi_inst = spi1;
     }
-    // 5MHz (bmi can handle 10mhz)
-    spi_init(_spi_inst, 5000 * 1000);
+    // 10mhz is max according to spec. In reality, 12.5 has been tested and works.
+    // Stick with 10mhz for now.
+    constexpr auto desired_clock_rate = 10 * 1000 * 1000;
+    auto achieved_clock_rate = spi_init(_spi_inst, desired_clock_rate);
+    printf("Desired spi clock rate: %d, achieved: %d\n", desired_clock_rate, achieved_clock_rate);
     gpio_set_function(_sclk, GPIO_FUNC_SPI);
     gpio_set_function(_miso, GPIO_FUNC_SPI);
     gpio_set_function(_mosi, GPIO_FUNC_SPI);
@@ -426,7 +429,6 @@ void bmi088::write_register(uint8_t reg, uint8_t data, cs_type cs)
     spi_write_blocking(_spi_inst, buf, 2);
     accel_cs_deselect();
     gyro_cs_deselect();
-    sleep_ms(10);
 }
 
 #define READ_BIT 0x80
@@ -436,11 +438,9 @@ void bmi088::accel_read_registers(uint8_t reg, uint8_t* buf, uint16_t len)
     reg |= READ_BIT;
     accel_cs_select();
     spi_write_blocking(_spi_inst, &reg, 1);
-    sleep_ms(10);
     spi_read_blocking(_spi_inst, 0, buf, 1);
     spi_read_blocking(_spi_inst, 0, buf, len);
     accel_cs_deselect();
-    sleep_ms(10);
 }
 void bmi088::gyro_read_registers(uint8_t reg, uint8_t* buf, uint16_t len)
 {
@@ -458,11 +458,9 @@ void bmi088::read_registers(uint8_t reg, uint8_t* buf, uint16_t len, cs_type cs)
         gyro_cs_select();
     }
     spi_write_blocking(_spi_inst, &reg, 1);
-    sleep_ms(10);
     spi_read_blocking(_spi_inst, 0, buf, len);
     accel_cs_deselect();
     gyro_cs_deselect();
-    sleep_ms(10);
 }
 
 } // namespace drv
