@@ -30,10 +30,14 @@ target_include_directories(main
  PRIVATE
   src/drivers/inc/)
 add_compile_options(-Wall
+        -Wextra
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int
         -Wno-unused-function # we have some for the docs that aren't called
         -Wno-maybe-uninitialized
         )
+
+# turn on more warnings
+target_compile_options(main PRIVATE -Wall)
 
 # Add pico_stdlib library which aggregates commonly used features
 target_link_libraries(main pico_stdlib hardware_pwm hardware_spi)
