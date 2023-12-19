@@ -4,6 +4,12 @@
 #include "hardware/spi.h"
 #include "pico/stdlib.h"
 
+/**
+ * Driver for the BMI088 IMU.
+ * Interrupts are not implemented yet.
+ * It has FIFOs built in, but I have not implemented them as the data needs to be services as soon as it is available.
+ * If that is unachieveable FIFO support needs to be added.
+ */
 struct AccelDataRaw {
     int16_t x;
     int16_t y;
