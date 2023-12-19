@@ -10,12 +10,7 @@
 namespace drv
 {
 
-bmp280::bmp280(uint sclk, uint miso, uint mosi, uint cs,
-               spi_module_num spi_module)
-    : _sclk(sclk)
-    , _miso(miso)
-    , _mosi(mosi)
-    , _cs(cs)
+bmp280::bmp280(uint sclk, uint miso, uint mosi, uint cs, spi_module_num spi_module) : _sclk(sclk), _miso(miso), _mosi(mosi), _cs(cs)
 {
     if (spi_module == spi_module_0) {
         _spi_inst = spi0;
@@ -56,9 +51,8 @@ void bmp280::init()
     }
     read_compensation_parameters();
 
-    write_register(0xF2, 0x1); // Humidity oversampling register - going for x1
-    write_register(
-        0xF4, 0x27); // Set rest of oversampling modes and run mode to normal
+    write_register(0xF2, 0x1);  // Humidity oversampling register - going for x1
+    write_register(0xF4, 0x27); // Set rest of oversampling modes and run mode to normal
 }
 
 void bmp280::getData()
@@ -124,13 +118,8 @@ read from the chip at startup and used in these routines.
 int32_t bmp280::compensate_temp(int32_t adc_T)
 {
     int32_t var1, var2, T;
-    var1 =
-        ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
-    var2 = (((((adc_T >> 4) - ((int32_t)dig_T1)) *
-              ((adc_T >> 4) - ((int32_t)dig_T1))) >>
-             12) *
-            ((int32_t)dig_T3)) >>
-           14;
+    var1 = ((((adc_T >> 3) - ((int32_t)dig_T1 << 1))) * ((int32_t)dig_T2)) >> 11;
+    var2 = (((((adc_T >> 4) - ((int32_t)dig_T1)) * ((adc_T >> 4) - ((int32_t)dig_T1))) >> 12) * ((int32_t)dig_T3)) >> 14;
 
     t_fine = var1 + var2;
     T = (t_fine * 5 + 128) >> 8;
@@ -145,9 +134,7 @@ uint32_t bmp280::compensate_pressure(int32_t adc_P)
     var2 = (((var1 >> 2) * (var1 >> 2)) >> 11) * ((int32_t)dig_P6);
     var2 = var2 + ((var1 * ((int32_t)dig_P5)) << 1);
     var2 = (var2 >> 2) + (((int32_t)dig_P4) << 16);
-    var1 = (((dig_P3 * (((var1 >> 2) * (var1 >> 2)) >> 13)) >> 3) +
-            ((((int32_t)dig_P2) * var1) >> 1)) >>
-           18;
+    var1 = (((dig_P3 * (((var1 >> 2) * (var1 >> 2)) >> 13)) >> 3) + ((((int32_t)dig_P2) * var1) >> 1)) >> 18;
     var1 = ((((32768 + var1)) * ((int32_t)dig_P1)) >> 15);
     if (var1 == 0)
         return 0;
@@ -169,21 +156,12 @@ uint32_t bmp280::compensate_humidity(int32_t adc_H)
 {
     int32_t v_x1_u32r;
     v_x1_u32r = (t_fine - ((int32_t)76800));
-    v_x1_u32r =
-        (((((adc_H << 14) - (((int32_t)dig_H4) << 20) -
-            (((int32_t)dig_H5) * v_x1_u32r)) +
-           ((int32_t)16384)) >>
-          15) *
-         (((((((v_x1_u32r * ((int32_t)dig_H6)) >> 10) *
-              (((v_x1_u32r * ((int32_t)dig_H3)) >> 11) + ((int32_t)32768))) >>
-             10) +
-            ((int32_t)2097152)) *
-               ((int32_t)dig_H2) +
-           8192) >>
-          14));
-    v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) *
-                               ((int32_t)dig_H1)) >>
-                              4));
+    v_x1_u32r = (((((adc_H << 14) - (((int32_t)dig_H4) << 20) - (((int32_t)dig_H5) * v_x1_u32r)) + ((int32_t)16384)) >> 15) *
+                 (((((((v_x1_u32r * ((int32_t)dig_H6)) >> 10) * (((v_x1_u32r * ((int32_t)dig_H3)) >> 11) + ((int32_t)32768))) >> 10) + ((int32_t)2097152)) *
+                       ((int32_t)dig_H2) +
+                   8192) >>
+                  14));
+    v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * ((int32_t)dig_H1)) >> 4));
     v_x1_u32r = (v_x1_u32r < 0 ? 0 : v_x1_u32r);
     v_x1_u32r = (v_x1_u32r > 419430400 ? 419430400 : v_x1_u32r);
 
@@ -223,16 +201,13 @@ void bmp280::read_compensation_parameters()
     dig_H6 = (int8_t)buffer[7];
 }
 
-void bmp280::bmp280_read_raw(int32_t* humidity, int32_t* pressure,
-                             int32_t* temperature)
+void bmp280::bmp280_read_raw(int32_t* humidity, int32_t* pressure, int32_t* temperature)
 {
     uint8_t buffer[8];
 
     read_registers(0xF7, buffer, 8);
-    *pressure = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) |
-                (buffer[2] >> 4);
-    *temperature = ((uint32_t)buffer[3] << 12) | ((uint32_t)buffer[4] << 4) |
-                   (buffer[5] >> 4);
+    *pressure = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | (buffer[2] >> 4);
+    *temperature = ((uint32_t)buffer[3] << 12) | ((uint32_t)buffer[4] << 4) | (buffer[5] >> 4);
     *humidity = (uint32_t)buffer[6] << 8 | buffer[7];
 }
 
