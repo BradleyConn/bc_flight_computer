@@ -148,14 +148,14 @@ AccelDataRaw bmi088::accel_get_data_raw()
 {
     uint8_t accel_data_u8[9];
     int16_t accel_data_i16[9];
-    for (int i = 0; i < sizeof(accel_data_u8); i++) {
+    for (uint32_t i = 0; i < sizeof(accel_data_u8); i++) {
         accel_data_i16[i] = 0;
         accel_data_u8[i] = 0;
     }
 
     accel_read_registers(0x12, accel_data_u8, 9);
 
-    for (int i = 0; i < sizeof(accel_data_u8); i++) {
+    for (uint32_t i = 0; i < sizeof(accel_data_u8); i++) {
         accel_data_i16[i] = accel_data_u8[i];
     }
 
@@ -214,14 +214,14 @@ GyroDataRaw bmi088::gyro_get_data_raw()
 {
     uint8_t gyro_data_u8[6];
     int16_t gyro_data_i16[6];
-    for (int i = 0; i < sizeof(gyro_data_u8); i++) {
+    for (uint32_t i = 0; i < sizeof(gyro_data_u8); i++) {
         gyro_data_i16[i] = 0;
         gyro_data_u8[i] = 0;
     }
 
     gyro_read_registers(0x02, gyro_data_u8, 6);
 
-    for (int i = 0; i < sizeof(gyro_data_u8); i++) {
+    for (uint32_t i = 0; i < sizeof(gyro_data_u8); i++) {
         gyro_data_i16[i] = gyro_data_u8[i];
     }
 
