@@ -60,7 +60,7 @@ int main()
 
     puts("Init bmp280!");
     bmp280.init();
-    // bmp280.forever_test();
+    //bmp280.forever_test();
     puts("Init bmi088!");
     bmi088.init();
 
@@ -82,6 +82,10 @@ int main()
         puts("converted");
         //bmi088.print_data_converted(bmi088ConvertedData);
         bmi088.print_data_converted_floats(bmi088ConvertedData);
+
+        bmp280DatasetRaw bmp280RawData = bmp280.get_data_raw();
+        bmp280DatasetConverted bmp280ConvertedData = bmp280.convert_data(bmp280RawData);
+        bmp280.print_data_converted(bmp280ConvertedData);
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
         int x = -5;

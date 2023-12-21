@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-3-Clause
  */
 #include "../inc/drv_bmp280.h"
+#include "drv_bmp280.h"
+#include <math.h>
 #include <stdio.h>
 
 // Implementation stripped almost exactly from the the pico examples
@@ -17,8 +19,10 @@ bmp280::bmp280(uint sclk, uint miso, uint mosi, uint cs, spi_module_num spi_modu
     } else if (spi_module == spi_module_1) {
         _spi_inst = spi1;
     }
-    // 0.5MHz
-    spi_init(_spi_inst, 500 * 1000);
+    // 10Mhz
+    const auto desired_clockrate = 10000 * 1000;
+    auto clockrate = spi_init(_spi_inst, desired_clockrate);
+    printf("BMP280 desired spi clock: %d Hz, actual: %d Hz\n", desired_clockrate, clockrate);
     gpio_set_function(_sclk, GPIO_FUNC_SPI);
     gpio_set_function(_miso, GPIO_FUNC_SPI);
     gpio_set_function(_mosi, GPIO_FUNC_SPI);
@@ -36,7 +40,7 @@ bmp280::~bmp280()
 
 uint8_t bmp280::readID()
 {
-    // See if SPI is working - interrograte the device for its I2C ID number, should be 0x60
+    // See if SPI is working - interrograte the device for its I2C ID number, should be 0x58
     uint8_t id;
     read_registers(0xD0, &id, 1);
     printf("Chip ID is 0x%x\n", id);
@@ -51,25 +55,33 @@ void bmp280::init()
     }
     read_compensation_parameters();
 
-    write_register(0xF2, 0x1);  // Humidity oversampling register - going for x1
-    write_register(0xF4, 0x27); // Set rest of oversampling modes and run mode to normal
+    // The settings in the following 2 registers give a sample rate of about 26-27hz or a period of 37-38ms
+    // 010 - temp oversample x2
+    // 101 - pressure oversample x16
+    // 11 - normal mode
+    write_register(0xF4, 0x57);
+    write_register(0xF5, 0x00); // Set standby time to 0.5ms (smallest) and IIR filter to 0, and 4-wire SPI mode
 }
 
-void bmp280::getData()
+bmp280DatasetRaw bmp280::get_data_raw()
 {
-    int32_t humidity, pressure, temperature;
-    bmp280_read_raw(&humidity, &pressure, &temperature);
+    bmp280DatasetRaw data;
+    uint8_t buffer[6];
 
-    // These are the raw numbers from the chip, so we need to run through the
-    // compensations to get human understandable numbers
-    pressure = compensate_pressure(pressure);
-    temperature = compensate_temp(temperature);
-    humidity = compensate_humidity(humidity);
-
-    // printf("Humidity = %.2f%%\n", humidity / 1024.0);
-    // printf("Pressure = %dPa\n", pressure);
-    // printf("Temp. = %.2fC\n", temperature / 100.0);
+    read_registers(0xF7, buffer, 6);
+    data.pressure_raw = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | (buffer[2] >> 4);
+    data.temperature_raw = ((uint32_t)buffer[3] << 12) | ((uint32_t)buffer[4] << 4) | (buffer[5] >> 4);
+    return data;
 }
+
+bmp280DatasetConverted bmp280::convert_data(bmp280DatasetRaw data)
+{
+    bmp280DatasetConverted converted_data;
+    converted_data.temperature_deg_cC = compensate_temp(data.temperature_raw);
+    converted_data.pressure_Pa = compensate_pressure(data.pressure_raw);
+    return converted_data;
+}
+
 inline void bmp280::cs_select()
 {
     asm volatile("nop \n nop \n nop");
@@ -152,27 +164,11 @@ uint32_t bmp280::compensate_pressure(int32_t adc_P)
     return p;
 }
 
-uint32_t bmp280::compensate_humidity(int32_t adc_H)
-{
-    int32_t v_x1_u32r;
-    v_x1_u32r = (t_fine - ((int32_t)76800));
-    v_x1_u32r = (((((adc_H << 14) - (((int32_t)dig_H4) << 20) - (((int32_t)dig_H5) * v_x1_u32r)) + ((int32_t)16384)) >> 15) *
-                 (((((((v_x1_u32r * ((int32_t)dig_H6)) >> 10) * (((v_x1_u32r * ((int32_t)dig_H3)) >> 11) + ((int32_t)32768))) >> 10) + ((int32_t)2097152)) *
-                       ((int32_t)dig_H2) +
-                   8192) >>
-                  14));
-    v_x1_u32r = (v_x1_u32r - (((((v_x1_u32r >> 15) * (v_x1_u32r >> 15)) >> 7) * ((int32_t)dig_H1)) >> 4));
-    v_x1_u32r = (v_x1_u32r < 0 ? 0 : v_x1_u32r);
-    v_x1_u32r = (v_x1_u32r > 419430400 ? 419430400 : v_x1_u32r);
-
-    return (uint32_t)(v_x1_u32r >> 12);
-}
-
 /* This function reads the manufacturing assigned compensation parameters from
  * the device */
 void bmp280::read_compensation_parameters()
 {
-    uint8_t buffer[26];
+    uint8_t buffer[24];
 
     read_registers(0x88, buffer, 24);
 
@@ -189,47 +185,43 @@ void bmp280::read_compensation_parameters()
     dig_P7 = buffer[18] | (buffer[19] << 8);
     dig_P8 = buffer[20] | (buffer[21] << 8);
     dig_P9 = buffer[22] | (buffer[23] << 8);
-
-    dig_H1 = buffer[25];
-
-    read_registers(0xE1, buffer, 8);
-
-    dig_H2 = buffer[0] | (buffer[1] << 8);
-    dig_H3 = (int8_t)buffer[2];
-    dig_H4 = buffer[3] << 4 | (buffer[4] & 0xf);
-    dig_H5 = (buffer[5] >> 4) | (buffer[6] << 4);
-    dig_H6 = (int8_t)buffer[7];
-}
-
-void bmp280::bmp280_read_raw(int32_t* humidity, int32_t* pressure, int32_t* temperature)
-{
-    uint8_t buffer[8];
-
-    read_registers(0xF7, buffer, 8);
-    *pressure = ((uint32_t)buffer[0] << 12) | ((uint32_t)buffer[1] << 4) | (buffer[2] >> 4);
-    *temperature = ((uint32_t)buffer[3] << 12) | ((uint32_t)buffer[4] << 4) | (buffer[5] >> 4);
-    *humidity = (uint32_t)buffer[6] << 8 | buffer[7];
 }
 
 void bmp280::forever_test()
 {
-    int32_t humidity, pressure, temperature;
-
     while (1) {
-        bmp280_read_raw(&humidity, &pressure, &temperature);
+        bmp280DatasetRaw data = get_data_raw();
 
         // These are the raw numbers from the chip, so we need to run through the
         // compensations to get human understandable numbers
-        pressure = compensate_pressure(pressure);
-        temperature = compensate_temp(temperature);
-        humidity = compensate_humidity(humidity);
+        bmp280DatasetConverted converted_data = convert_data(data);
+        printf("Pressure = %ld Pa\n", converted_data.pressure_Pa);
+        // XXX: Uses floats. RP2040 has no fp hardware. Software fp will be super slow. Do not use in flight code.
+        printf("Temp. = %ld C\n", converted_data.temperature_deg_cC / 100);
 
-        printf("Humidity = %.2f%%\n", humidity / 1024.0);
-        printf("Pressure = %dPa\n", pressure);
-        printf("Temp. = %.2fC\n", temperature / 100.0);
+        // Estimate the altitude using the pressure.
+        // This is a very rough estimate (as seen on wiki, weather.gov, adafruit, etc.)
+        // and should be calibrated before flight and probably take into account temperature if accurate altitute is needed.
+        // XXX: This is using floats and powf so it'll be slow.
+        // Don't include it in flight code so don't premote it with helper functions or anything.
+        // This formula is for meters, and pa so divide by 100 to get hPa, so 1013.25 becomes 101325, add .0 to signify float
+        float altitude = 443307.694 * (1 - powf(converted_data.pressure_Pa / 101325.0, 0.190284));
+        printf("Altitude = %.2fm or %.fft\n", altitude, altitude * 3.28084);
 
         sleep_ms(1000);
     }
+}
+
+void bmp280::print_data_raw(bmp280DatasetRaw data)
+{
+    printf("Pressure raw = %ld\n", data.pressure_raw);
+    printf("Temperature raw = %ld\n", data.temperature_raw);
+}
+
+void bmp280::print_data_converted(bmp280DatasetConverted data)
+{
+    printf("Pressure = %ld Pa\n", data.pressure_Pa);
+    printf("Temp. = %ld centi C\n", data.temperature_deg_cC);
 }
 
 } // namespace drv
