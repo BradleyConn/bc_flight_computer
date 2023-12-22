@@ -25,10 +25,16 @@ add_executable(main
     src/drivers/src/drv_led.cpp
     src/drivers/src/drv_bmp280.cpp
     src/drivers/src/drv_bmi088.cpp
+
+    src/control_logic/src/torque_to_tvc_angle.cpp
+    src/control_logic/src/thrust_curve_E12.cpp
+    src/control_logic/src/time_keeper.cpp
 )
 target_include_directories(main
  PRIVATE
-  src/drivers/inc/)
+  src/drivers/inc/
+  src/control_logic/inc/
+  )
 add_compile_options(-Wall
         -Wextra
         -Wno-format          # int != int32_t as far as the compiler is concerned because gcc has int32_t as long int

@@ -22,6 +22,7 @@ int main() {
 // Output PWM signals on pins 0 and 1
 
 #include "../bsp/enos.h"
+#include "control_logic/inc/time_keeper.h"
 #include "drivers/inc/drv_bmi088.h"
 #include "drivers/inc/drv_bmp280.h"
 #include "drivers/inc/drv_led.h"
@@ -33,7 +34,10 @@ int main()
 {
     setup_default_uart();
     printf("Hello, world! - This is Enos your flight computer speaking!\n");
-    /// \tag::setup_pwm[]
+    auto timeKeeperStartOfWorld = TimeKeeper();
+    timeKeeperStartOfWorld.mark();
+    timeKeeperStartOfWorld.printTimeuS();
+    auto timeKeeperLaunch = TimeKeeper();
     //
     // sys clock set by oscillator (12mhz) * (fbdiv=100)
     // then 1200/ (postdiv1=6 * postdiv2=2) = 125
@@ -49,14 +53,10 @@ int main()
     // auto servo_A = drv::servo(16, drv::servo::servo_type::Analog, 0);
     // auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
     // auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
-    auto bmp280 = drv::bmp280(
-        PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280,
-        PICO_DEFAULT_SPI_MOSI_PIN_BMP280, PICO_DEFAULT_SPI_CS_PIN_BMP280,
-        drv::bmp280::spi_module_1);
-    auto bmi088 = drv::bmi088(
-        PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088,
-        PICO_DEFAULT_SPI_MOSI_PIN_BMI088, PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088,
-        PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
+    auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280,
+                              PICO_DEFAULT_SPI_CS_PIN_BMP280, drv::bmp280::spi_module_1);
+    auto bmi088 = drv::bmi088(PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088, PICO_DEFAULT_SPI_MOSI_PIN_BMI088,
+                              PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
 
     puts("Init bmp280!");
     bmp280.init();
@@ -64,17 +64,10 @@ int main()
     puts("Init bmi088!");
     bmi088.init();
 
-    /*while (1)
-    {
-        bmi088.getData();
-        for (volatile int j = 0; j < 1000000; j++)
-        {
-        }
-    }
-    */
-
     while (1) {
         printf("Loop!\n");
+        timeKeeperStartOfWorld.printTimeuS();
+
         auto bmi088RawData = bmi088.get_data_raw();
         puts("raw");
         bmi088.print_data_raw(bmi088RawData);
