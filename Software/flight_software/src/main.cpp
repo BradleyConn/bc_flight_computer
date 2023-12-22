@@ -23,8 +23,10 @@ int main() {
 
 #include "../bsp/enos.h"
 #include "control_logic/inc/time_keeper.h"
+#include "control_logic/inc/thrust_curve_E12.h"
 #include "drivers/inc/drv_bmi088.h"
 #include "drivers/inc/drv_bmp280.h"
+#include "drivers/inc/drv_buzzer.h"
 #include "drivers/inc/drv_led.h"
 #include "drivers/inc/drv_servo.h"
 #include "hardware/pwm.h"
@@ -38,7 +40,7 @@ int main()
     timeKeeperStartOfWorld.mark();
     timeKeeperStartOfWorld.printTimeuS();
     auto timeKeeperLaunch = TimeKeeper();
-    //
+
     // sys clock set by oscillator (12mhz) * (fbdiv=100)
     // then 1200/ (postdiv1=6 * postdiv2=2) = 125
     //
@@ -46,28 +48,33 @@ int main()
     // then 125mhz gives 8ns period
     // 20ms/8ns = 2,500,000 = "wrap" (minus 1 because 0 indexed)
     // then 1.5ms/8ns = 187,500 = "level" (minus 1 because 0 indexed)
-    // auto servo_E = drv::servo(24, drv::servo::servo_type::Analog, 0);
-    // auto servo_D = drv::servo(22, drv::servo::servo_type::Analog, 0);
-    // auto servo_C = drv::servo(21, drv::servo::servo_type::Analog, 0);
-    // auto servo_B = drv::servo(18, drv::servo::servo_type::Analog, 0);
-    // auto servo_A = drv::servo(16, drv::servo::servo_type::Analog, 0);
-    // auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
-    // auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
+    auto servo_E = drv::servo(PICO_DEFAULT_SERVO_E_PIN, drv::servo::servo_type::Analog, 0);
+    auto servo_D = drv::servo(PICO_DEFAULT_SERVO_D_PIN, drv::servo::servo_type::Analog, 0);
+    auto servo_C = drv::servo(PICO_DEFAULT_SERVO_C_PIN, drv::servo::servo_type::Analog, 0);
+    auto servo_B = drv::servo(PICO_DEFAULT_SERVO_B_PIN, drv::servo::servo_type::Analog, 0);
+    auto servo_A = drv::servo(PICO_DEFAULT_SERVO_A_PIN, drv::servo::servo_type::Analog, 0);
+    auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
+    auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
+    auto buzzer = drv::buzzer(PICO_DEFAULT_BUZZER_PIN);
     auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280,
                               PICO_DEFAULT_SPI_CS_PIN_BMP280, drv::bmp280::spi_module_1);
     auto bmi088 = drv::bmi088(PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088, PICO_DEFAULT_SPI_MOSI_PIN_BMI088,
                               PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
+    // Todo: This should probably be the IThrustCurve interface. Keep it consistent for now with everything else.
+    ThrustCurveE12 thrustCurve = ThrustCurveE12();
 
     puts("Init bmp280!");
     bmp280.init();
     //bmp280.forever_test();
     puts("Init bmi088!");
     bmi088.init();
+    //buzzer.set_frequency(2700);
+
+
 
     while (1) {
         printf("Loop!\n");
         timeKeeperStartOfWorld.printTimeuS();
-
         auto bmi088RawData = bmi088.get_data_raw();
         puts("raw");
         bmi088.print_data_raw(bmi088RawData);

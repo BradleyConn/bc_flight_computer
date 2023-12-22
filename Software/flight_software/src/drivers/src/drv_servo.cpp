@@ -30,7 +30,7 @@ servo::servo(uint gpio, servo_type type, int32_t starting_angle_centi_degrees)
     } else {
         // Analog is 50hz, digital can go up to 333hz. Some internet peeps seem to think is can overheat if you go that fast.
         // 4x shorter period means 4x faster, so 200hz. Should be a good start
-        pwm_set_wrap(_slice_num, 2500000 / 4 / 64);
+        pwm_set_wrap(_slice_num, (2500000 / 4) / 64);
     }
     // The threshold PWM is ON. Put it in the middle.
     set_angle_centi_degrees(starting_angle_centi_degrees);

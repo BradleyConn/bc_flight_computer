@@ -45,6 +45,32 @@
 #define PICO_DEFAULT_LED_PIN_GREEN 15
 #endif
 
+//------------ BUZZER -----------//
+#ifndef PICO_DEFAULT_BUZZER_PIN
+#define PICO_DEFAULT_BUZZER_PIN 7
+#endif
+
+//------------ SERVOS -----------//
+#ifndef PICO_DEFAULT_SERVO_A_PIN
+#define PICO_DEFAULT_SERVO_A_PIN 16
+#endif
+
+#ifndef PICO_DEFAULT_SERVO_B_PIN
+#define PICO_DEFAULT_SERVO_B_PIN 18
+#endif
+
+#ifndef PICO_DEFAULT_SERVO_C_PIN
+#define PICO_DEFAULT_SERVO_C_PIN 21
+#endif
+
+#ifndef PICO_DEFAULT_SERVO_D_PIN
+#define PICO_DEFAULT_SERVO_D_PIN 22
+#endif
+
+#ifndef PICO_DEFAULT_SERVO_E_PIN
+#define PICO_DEFAULT_SERVO_E_PIN 24
+#endif
+
 //------------- I2C -------------//
 // CONFLICTS WITH UART
 #ifndef PICO_DEFAULT_I2C
