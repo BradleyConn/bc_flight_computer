@@ -142,6 +142,9 @@ void bmi088::init()
     gyro_write_register(0x0F, 0x00);
     // Set the bandwidth to 200Hz
     gyro_write_register(0x10, 0x04);
+
+    // sleep to let the new registers kick in
+    sleep_ms(50);
 }
 
 AccelDataRaw bmi088::accel_get_data_raw()
