@@ -105,14 +105,7 @@ void FlashDriver::dump_log_last_session()
 {
     printf("FlashDriver::dump_log_last_session() - dump the log last session\n");
     //go backwards and find the last session header
-    uint32_t last_session_page = num_pages;
-    for (uint32_t page = start_page_this_session - 1; page >= starting_page; page--) {
-        auto data = read_ptr(page);
-        if (has_magic_and_session_header(data)) {
-            last_session_page = page;
-            break;
-        }
-    }
+    uint32_t last_session_page = seek_previous_session();
     //dump the log last session
     uint8_t buffer[usable_flash_page_size];
     for (uint32_t page = last_session_page; page < start_page_this_session; page++) {
@@ -130,6 +123,17 @@ void FlashDriver::reset_log()
     printf("FlashDriver::reset_log() - erase the entire log section\n");
     //erase the entire log section
     flash_range_erase(starting_page * flash_page_size, bytes_16MB - starting_page * flash_page_size);
+}
+
+
+bool FlashDriver::has_previous_session()
+{
+    return seek_previous_session() != num_pages;
+}
+
+uint8_t* FlashDriver::get_log_ptr_previous_session()
+{
+    return read_ptr(seek_previous_session()+1);
 }
 
 uint8_t* FlashDriver::get_log_ptr()
@@ -229,6 +233,25 @@ void FlashDriver::read_into_buffer(uint32_t page, uint32_t offset, uint8_t* buff
     for (size_t i = 0; i < count; i++) {
         buffer[i] = data[i];
     }
+}
+
+uint32_t FlashDriver::seek_previous_session()
+{
+    return seek_previous_session_from_page(starting_page);
+}
+
+uint32_t FlashDriver::seek_previous_session_from_page(uint32_t page)
+{
+    //go backwards and find the last session header
+    uint32_t last_session_page = num_pages;
+    for (uint32_t page = start_page_this_session - 1; page >= starting_page; page--) {
+        auto data = read_ptr(page);
+        if (has_magic_and_session_header(data)) {
+            last_session_page = page;
+            break;
+        }
+    }
+    return last_session_page;
 }
 
 bool FlashDriver::has_magic_and_session_header(uint8_t* data)

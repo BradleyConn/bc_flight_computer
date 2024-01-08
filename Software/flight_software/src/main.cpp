@@ -44,6 +44,27 @@ int main()
     auto timeKeeperLaunch = TimeKeeper();
 
     auto flash = drv::FlashDriver();
+    {
+        // read the last session data and use the telemetry container to print it
+        if (flash.has_previous_session()) {
+            printf("FlashDriver::FlashDriver() - found a previous session, print data using the telemetry container\n");
+            flash.dump_log_last_session();
+            auto data = flash.get_log_ptr_previous_session();
+            data += 2;
+            printf("print last sesh\n");
+            //print some of it
+            for (int i = 0; i < 100; i++) {
+                printf("%02x ", data[i]);
+            }
+            printf("\n");
+
+            auto telemetry_container = sys::TelemetryContainer();
+            telemetry_container.setPackagedRawBytes(data);
+            telemetry_container.printPackagedTelemetryData();
+            telemetry_container.printRawLogBytes();
+            printf("DONE!\n\n");
+        }
+    }
     auto telemetry_container = sys::TelemetryContainer();
 
     // sys clock set by oscillator (12mhz) * (fbdiv=100)
@@ -83,7 +104,7 @@ int main()
         //bmi088.print_data_raw(bmi088RawData);
         auto bmi088ConvertedData = bmi088.convert_data(bmi088RawData);
         //puts("converted");
-        //bmi088.print_data_converted(bmi088ConvertedData);
+        bmi088.print_data_converted(bmi088ConvertedData);
         //bmi088.print_data_converted_floats(bmi088ConvertedData);
 
         bmp280DatasetRaw bmp280RawData = bmp280.get_data_raw();
@@ -99,7 +120,10 @@ int main()
         telemetry_container.setTimeData2(timeKeeperLaunch.deltaTime_us());
         telemetry_container.setTimeData3(timeKeeperLaunch.deltaTime_us());
         telemetry_container.printRawLogBytes();
-        telemetry_container.printPackagedTelemetryData();
+        //telemetry_container.printPackagedTelemetryData();
+
+        flash.write_next_usable_page_size(telemetry_container.getPackagedRawBytes());
+
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
         int x = -5;

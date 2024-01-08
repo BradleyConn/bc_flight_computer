@@ -24,12 +24,20 @@ public:
     // NOTE: This appears to take 639 us to execute
     void write_next_usable_page_size(uint8_t* data);
 
+    // TODO: make a function that writes smaller than a page
+    // For now want to keep flash operations to a minimum and
+    // extremely optimized so leave that out so it doesn't get abused.
+
     void dump_log_this_session();
     void dump_full_log();
     void dump_log_last_session();
 
     // Erase the entire log section
     void reset_log();
+
+    bool has_previous_session();
+    uint8_t* get_log_ptr_previous_session();
+
 
     //--------------------------------------------------
     // Probably don't need these functions
@@ -68,6 +76,9 @@ public:
     {
         return next_page;
     }
+
+    uint32_t seek_previous_session();
+    uint32_t seek_previous_session_from_page(uint32_t page);
 
     static constexpr uint32_t flash_page_size = 256;
     static constexpr uint32_t flash_sector_size = 4096;

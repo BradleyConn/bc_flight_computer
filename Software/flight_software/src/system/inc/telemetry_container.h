@@ -28,6 +28,8 @@ struct PackagedTelemetryData {
 
 // This class is a container for all the data that is collected from the sensors but it is 
 // packaged so that it can be logged to flash
+// TODO: Initially this was intended to be an extension of logging but it didn't turn out that way
+// There is tons of coupling to logging here that should be refactored and separated out
 class TelemetryContainer
 {
 public:
@@ -64,6 +66,7 @@ public:
     // This maybe should return const but provide extra flexibility for now
     uint8_t* getPackagedRawBytes();
     void getPackagedRawBytesCopy(uint8_t* packagedBytes) const;
+    void setPackagedRawBytes(const uint8_t* packagedBytes);
 
     // Print functions
     void printRawLogBytes() const;

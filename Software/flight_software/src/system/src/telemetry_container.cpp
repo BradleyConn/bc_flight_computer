@@ -119,6 +119,11 @@ void TelemetryContainer::getPackagedRawBytesCopy(uint8_t* packagedBytes) const
 {
     memcpy(packagedBytes, _rawLogBytes, sizeof(_rawLogBytes));
 }
+
+void TelemetryContainer::setPackagedRawBytes(const uint8_t* packagedBytes)
+{
+    memcpy(_rawLogBytes, packagedBytes, sizeof(_rawLogBytes));
+}
 // Print functions
 void TelemetryContainer::printRawLogBytes() const
 {
