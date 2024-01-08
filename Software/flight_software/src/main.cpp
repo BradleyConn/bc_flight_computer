@@ -22,8 +22,6 @@ int main() {
 // Output PWM signals on pins 0 and 1
 
 #include "../bsp/enos.h"
-#include "control_logic/inc/thrust_curve_E12.h"
-#include "control_logic/inc/time_keeper.h"
 #include "drivers/inc/drv_bmi088.h"
 #include "drivers/inc/drv_bmp280.h"
 #include "drivers/inc/drv_buzzer.h"
@@ -32,6 +30,8 @@ int main() {
 #include "drivers/inc/drv_servo.h"
 #include "hardware/pwm.h"
 #include "pico/stdlib.h"
+#include "system/inc/thrust_curve_E12.h"
+#include "system/inc/time_keeper.h"
 
 int main()
 {
@@ -45,28 +45,7 @@ int main()
     auto flash = drv::FlashDriver();
     const auto next_page = flash.get_next_page();
     printf("FlashDriver::get_next_page() = %d\n", next_page);
-    //test the flash driver
-    uint8_t data[drv::FlashDriver::usable_flash_page_size];
-    for (int i = 0; i < drv::FlashDriver::usable_flash_page_size; i++) {
-        data[i] = i + 6;
-    }
-    //flash.write(next_page * drv::FlashDriver::flash_page_size + sizeof(drv::FlashDriver::magic_header), data, drv::FlashDriver::usable_flash_page_size);
-    printf("FlashDriver::write_next_usable_page_size() - write data to page %d\n", next_page);
-    timeKeeperLaunch.mark();
-    flash.write_next_usable_page_size(data);
-    timeKeeperLaunch.printTimeuS();
-    data[2] = 0x99;
-    flash.write_next_usable_page_size(data);
-    data[2] = 0x88;
-    flash.write_next_usable_page_size(data);
-    printf("FlashDriver::write_next_usable_page_size() - wrote data to page %d\n", next_page);
-    auto data2 = flash.read_ptr(next_page);
-    flash.dump_full_log();
-    flash.dump_log_this_session();
-    flash.dump_log_last_session();
-
-    for (;;)
-        ;
+    uint8_t log_data[drv::FlashDriver::usable_flash_page_size];
 
     // sys clock set by oscillator (12mhz) * (fbdiv=100)
     // then 1200/ (postdiv1=6 * postdiv2=2) = 125

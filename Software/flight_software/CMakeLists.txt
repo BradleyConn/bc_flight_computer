@@ -28,14 +28,14 @@ add_executable(main
     src/drivers/src/drv_buzzer.cpp
     src/drivers/src/drv_flash.cpp
 
-    src/control_logic/src/torque_to_tvc_angle.cpp
-    src/control_logic/src/thrust_curve_E12.cpp
-    src/control_logic/src/time_keeper.cpp
+    src/system/src/torque_to_tvc_angle.cpp
+    src/system/src/thrust_curve_E12.cpp
+    src/system/src/time_keeper.cpp
 )
 target_include_directories(main
  PRIVATE
   src/drivers/inc/
-  src/control_logic/inc/
+  src/system/inc/
   )
 add_compile_options(-Wall
         -Wextra
