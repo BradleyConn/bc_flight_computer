@@ -31,7 +31,7 @@ add_executable(main
     src/system/src/torque_to_tvc_angle.cpp
     src/system/src/thrust_curve_E12.cpp
     src/system/src/time_keeper.cpp
-    src/system/src/data_container.cpp
+    src/system/src/telemetry_container.cpp
 )
 target_include_directories(main
  PRIVATE

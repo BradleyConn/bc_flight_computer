@@ -1,5 +1,5 @@
-#ifndef DATA_CONTAINER_H
-#define DATA_CONTAINER_H
+#ifndef TELEMETRY_CONTAINER_H
+#define TELEMETRY_CONTAINER_H
 
 #include "drv_bmi088.h"
 #include "drv_bmp280.h"
@@ -26,15 +26,16 @@ struct PackagedTelemetryData {
     bmp280DatasetConverted bmp280DatasetConvertedInst;
 };
 
-// This class is a container for all the data that is collected from the sensors but it is packaged so that it can be logged to flash
-class DataContainer
+// This class is a container for all the data that is collected from the sensors but it is 
+// packaged so that it can be logged to flash
+class TelemetryContainer
 {
 public:
     // Constructor zeros out the _rawLogBytes and fills in id's
-    DataContainer();
+    TelemetryContainer();
 
     // Destructor
-    ~DataContainer();
+    ~TelemetryContainer();
 
     // Getters and setters for BMI088 sensor data
     bmi088DatasetRaw getBMI088DatasetRaw() const;
@@ -80,4 +81,4 @@ private:
 };
 } // namespace sys
 
-#endif // DATA_CONTAINER_H
+#endif // TELEMETRY_CONTAINER_H

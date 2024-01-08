@@ -1,10 +1,10 @@
-#include "data_container.h"
+#include "telemetry_container.h"
 #include <cstring>
 #include <stdio.h>
 
 namespace sys
 {
-DataContainer::DataContainer()
+TelemetryContainer::TelemetryContainer()
 {
     // Constructor zeros out the _rawLogBytes
     memset(_rawLogBytes, 0, sizeof(_rawLogBytes));
@@ -20,112 +20,112 @@ DataContainer::DataContainer()
     memcpy(_packagedTelemetryDataInst->bmp280DatasetConverted_id, x.bmp280DatasetConverted_id, sizeof(x.bmp280DatasetConverted_id));
 }
 
-DataContainer::~DataContainer()
+TelemetryContainer::~TelemetryContainer()
 {
     // Destructor
 }
 
-bmi088DatasetRaw DataContainer::getBMI088DatasetRaw() const
+bmi088DatasetRaw TelemetryContainer::getBMI088DatasetRaw() const
 {
     return _packagedTelemetryDataInst->bmi088DatasetRawInst;
 }
 
-void DataContainer::setBMI088DatasetRaw(const bmi088DatasetRaw& bmi088DatasetRawInst)
+void TelemetryContainer::setBMI088DatasetRaw(const bmi088DatasetRaw& bmi088DatasetRawInst)
 {
     _packagedTelemetryDataInst->bmi088DatasetRawInst = bmi088DatasetRawInst;
 }
 
-bmi088DatasetConverted DataContainer::getBMI088DatasetConverted() const
+bmi088DatasetConverted TelemetryContainer::getBMI088DatasetConverted() const
 {
     return _packagedTelemetryDataInst->bmi088DatasetConvertedInst;
 }
 
-void DataContainer::setBMI088DatasetConverted(const bmi088DatasetConverted& bmi088DatasetConvertedInst)
+void TelemetryContainer::setBMI088DatasetConverted(const bmi088DatasetConverted& bmi088DatasetConvertedInst)
 {
     _packagedTelemetryDataInst->bmi088DatasetConvertedInst = bmi088DatasetConvertedInst;
 }
 
-bmp280DatasetRaw DataContainer::getBMP280DatasetRaw() const
+bmp280DatasetRaw TelemetryContainer::getBMP280DatasetRaw() const
 {
     return _packagedTelemetryDataInst->bmp280DatasetRawInst;
 }
 
-void DataContainer::setBMP280DatasetRaw(const bmp280DatasetRaw& bmp280DatasetRawInst)
+void TelemetryContainer::setBMP280DatasetRaw(const bmp280DatasetRaw& bmp280DatasetRawInst)
 {
     _packagedTelemetryDataInst->bmp280DatasetRawInst = bmp280DatasetRawInst;
 }
 
-bmp280DatasetConverted DataContainer::getBMP280DatasetConverted() const
+bmp280DatasetConverted TelemetryContainer::getBMP280DatasetConverted() const
 {
     return _packagedTelemetryDataInst->bmp280DatasetConvertedInst;
 }
 
-void DataContainer::setBMP280DatasetConverted(const bmp280DatasetConverted& bmp280DatasetConvertedInst)
+void TelemetryContainer::setBMP280DatasetConverted(const bmp280DatasetConverted& bmp280DatasetConvertedInst)
 {
     _packagedTelemetryDataInst->bmp280DatasetConvertedInst = bmp280DatasetConvertedInst;
 }
 
-uint64_t DataContainer::getTimeData1() const
+uint64_t TelemetryContainer::getTimeData1() const
 {
     return _packagedTelemetryDataInst->timeData1;
 }
 
-void DataContainer::setTimeData1(const uint64_t& timeData)
+void TelemetryContainer::setTimeData1(const uint64_t& timeData)
 {
     _packagedTelemetryDataInst->timeData1 = timeData;
 }
 
-uint64_t DataContainer::getTimeData2() const
+uint64_t TelemetryContainer::getTimeData2() const
 {
     return _packagedTelemetryDataInst->timeData2;
 }
 
-void DataContainer::setTimeData2(const uint64_t& timeData)
+void TelemetryContainer::setTimeData2(const uint64_t& timeData)
 {
     _packagedTelemetryDataInst->timeData2 = timeData;
 }
 
-uint64_t DataContainer::getTimeData3() const
+uint64_t TelemetryContainer::getTimeData3() const
 {
     return _packagedTelemetryDataInst->timeData3;
 }
 
-void DataContainer::setTimeData3(const uint64_t& timeData)
+void TelemetryContainer::setTimeData3(const uint64_t& timeData)
 {
     _packagedTelemetryDataInst->timeData3 = timeData;
 }
 
-PackagedTelemetryData* DataContainer::getPackagedTelemetryData() const
+PackagedTelemetryData* TelemetryContainer::getPackagedTelemetryData() const
 {
     return _packagedTelemetryDataInst;
 }
 
-PackagedTelemetryData DataContainer::getPackagedTelemetryDataCopy() const
+PackagedTelemetryData TelemetryContainer::getPackagedTelemetryDataCopy() const
 {
     return *_packagedTelemetryDataInst;
 }
 
-void DataContainer::setPackagedTelemetryData(const PackagedTelemetryData& packagedTelemetryDataInst)
+void TelemetryContainer::setPackagedTelemetryData(const PackagedTelemetryData& packagedTelemetryDataInst)
 {
     *_packagedTelemetryDataInst = packagedTelemetryDataInst;
 }
 
-uint8_t* DataContainer::getPackagedRawBytes()
+uint8_t* TelemetryContainer::getPackagedRawBytes()
 {
     return _rawLogBytes;
 }
 
-void DataContainer::getPackagedRawBytesCopy(uint8_t* packagedBytes) const
+void TelemetryContainer::getPackagedRawBytesCopy(uint8_t* packagedBytes) const
 {
     memcpy(packagedBytes, _rawLogBytes, sizeof(_rawLogBytes));
 }
 // Print functions
-void DataContainer::printRawLogBytes() const
+void TelemetryContainer::printRawLogBytes() const
 {
     printRawLogBytes(_rawLogBytes);
 }
 
-void DataContainer::printRawLogBytes(const uint8_t* rawLogBytes) const
+void TelemetryContainer::printRawLogBytes(const uint8_t* rawLogBytes) const
 {
     printf("Raw Log Bytes: ");
     for (size_t i = 0; i < sizeof(_rawLogBytes); i++) {
@@ -134,12 +134,12 @@ void DataContainer::printRawLogBytes(const uint8_t* rawLogBytes) const
     printf("\n");
 }
 
-void DataContainer::printPackagedTelemetryData() const
+void TelemetryContainer::printPackagedTelemetryData() const
 {
     printPackagedTelemetryData(*_packagedTelemetryDataInst);
 }
 
-void DataContainer::printPackagedTelemetryData(const PackagedTelemetryData& packagedTelemetryDataInst) const
+void TelemetryContainer::printPackagedTelemetryData(const PackagedTelemetryData& packagedTelemetryDataInst) const
 {
     printf("Packaged Telemetry Data:\n");
     printf("Time Data 1: %llu\n", packagedTelemetryDataInst.timeData1);

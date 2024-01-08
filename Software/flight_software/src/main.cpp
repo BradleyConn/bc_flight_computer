@@ -30,7 +30,7 @@ int main() {
 #include "drivers/inc/drv_servo.h"
 #include "hardware/pwm.h"
 #include "pico/stdlib.h"
-#include "system/inc/data_container.h"
+#include "system/inc/telemetry_container.h"
 #include "system/inc/thrust_curve_E12.h"
 #include "system/inc/time_keeper.h"
 
@@ -44,7 +44,7 @@ int main()
     auto timeKeeperLaunch = TimeKeeper();
 
     auto flash = drv::FlashDriver();
-    auto data_container = sys::DataContainer();
+    auto telemetry_container = sys::TelemetryContainer();
 
     // sys clock set by oscillator (12mhz) * (fbdiv=100)
     // then 1200/ (postdiv1=6 * postdiv2=2) = 125
@@ -91,15 +91,15 @@ int main()
         //bmp280.print_data_converted(bmp280ConvertedData);
 
         printf("\n\n");
-        data_container.setBMI088DatasetRaw(bmi088RawData);
-        data_container.setBMI088DatasetConverted(bmi088ConvertedData);
-        data_container.setBMP280DatasetRaw(bmp280RawData);
-        data_container.setBMP280DatasetConverted(bmp280ConvertedData);
-        data_container.setTimeData1(timeKeeperStartOfWorld.deltaTime_us());
-        data_container.setTimeData2(timeKeeperLaunch.deltaTime_us());
-        data_container.setTimeData3(timeKeeperLaunch.deltaTime_us());
-        data_container.printRawLogBytes();
-        data_container.printPackagedTelemetryData();
+        telemetry_container.setBMI088DatasetRaw(bmi088RawData);
+        telemetry_container.setBMI088DatasetConverted(bmi088ConvertedData);
+        telemetry_container.setBMP280DatasetRaw(bmp280RawData);
+        telemetry_container.setBMP280DatasetConverted(bmp280ConvertedData);
+        telemetry_container.setTimeData1(timeKeeperStartOfWorld.deltaTime_us());
+        telemetry_container.setTimeData2(timeKeeperLaunch.deltaTime_us());
+        telemetry_container.setTimeData3(timeKeeperLaunch.deltaTime_us());
+        telemetry_container.printRawLogBytes();
+        telemetry_container.printPackagedTelemetryData();
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
         int x = -5;
