@@ -26,6 +26,7 @@ add_executable(main
     src/drivers/src/drv_bmp280.cpp
     src/drivers/src/drv_bmi088.cpp
     src/drivers/src/drv_buzzer.cpp
+    src/drivers/src/drv_flash.cpp
 
     src/control_logic/src/torque_to_tvc_angle.cpp
     src/control_logic/src/thrust_curve_E12.cpp
@@ -47,7 +48,7 @@ add_compile_options(-Wall
 target_compile_options(main PRIVATE -Wall)
 
 # Add pico_stdlib library which aggregates commonly used features
-target_link_libraries(main pico_stdlib hardware_pwm hardware_spi)
+target_link_libraries(main pico_stdlib hardware_pwm hardware_spi hardware_flash)
 
 # create map/bin/hex/uf2 file in addition to ELF.
 pico_add_extra_outputs(main)

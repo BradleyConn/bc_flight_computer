@@ -22,11 +22,12 @@ int main() {
 // Output PWM signals on pins 0 and 1
 
 #include "../bsp/enos.h"
-#include "control_logic/inc/time_keeper.h"
 #include "control_logic/inc/thrust_curve_E12.h"
+#include "control_logic/inc/time_keeper.h"
 #include "drivers/inc/drv_bmi088.h"
 #include "drivers/inc/drv_bmp280.h"
 #include "drivers/inc/drv_buzzer.h"
+#include "drivers/inc/drv_flash.h"
 #include "drivers/inc/drv_led.h"
 #include "drivers/inc/drv_servo.h"
 #include "hardware/pwm.h"
@@ -41,6 +42,30 @@ int main()
     timeKeeperStartOfWorld.printTimeuS();
     auto timeKeeperLaunch = TimeKeeper();
 
+    auto flash = drv::FlashDriver();
+    const auto next_page = flash.get_next_page();
+    printf("FlashDriver::get_next_page() = %d\n", next_page);
+    //test the flash driver
+    uint8_t data[drv::FlashDriver::usable_flash_page_size];
+    for (int i = 0; i < drv::FlashDriver::usable_flash_page_size; i++) {
+        data[i] = i + 6;
+    }
+    //flash.write(next_page * drv::FlashDriver::flash_page_size + sizeof(drv::FlashDriver::magic_header), data, drv::FlashDriver::usable_flash_page_size);
+    printf("FlashDriver::write_next_usable_page_size() - write data to page %d\n", next_page);
+    flash.write_next_usable_page_size(data);
+    data[2] = 0x99;
+    flash.write_next_usable_page_size(data);
+    data[2] = 0x88;
+    flash.write_next_usable_page_size(data);
+    printf("FlashDriver::write_next_usable_page_size() - wrote data to page %d\n", next_page);
+    auto data2 = flash.read_ptr(next_page);
+    flash.dump_full_log();
+    flash.dump_log_this_session();
+    flash.dump_log_last_session();
+
+    for (;;)
+        ;
+
     // sys clock set by oscillator (12mhz) * (fbdiv=100)
     // then 1200/ (postdiv1=6 * postdiv2=2) = 125
     //
@@ -53,7 +78,7 @@ int main()
     auto servo_C = drv::servo(PICO_DEFAULT_SERVO_C_PIN, drv::servo::servo_type::Analog, 0);
     auto servo_B = drv::servo(PICO_DEFAULT_SERVO_B_PIN, drv::servo::servo_type::Analog, 0);
     auto servo_A = drv::servo(PICO_DEFAULT_SERVO_A_PIN, drv::servo::servo_type::Analog, 0);
-    auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED,  50);
+    auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED, 50);
     auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
     auto buzzer = drv::buzzer(PICO_DEFAULT_BUZZER_PIN);
     auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280,
@@ -69,8 +94,6 @@ int main()
     puts("Init bmi088!");
     bmi088.init();
     //buzzer.set_frequency(2700);
-
-
 
     while (1) {
         printf("Loop!\n");
