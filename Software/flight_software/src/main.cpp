@@ -30,6 +30,7 @@ int main() {
 #include "drivers/inc/drv_servo.h"
 #include "hardware/pwm.h"
 #include "pico/stdlib.h"
+#include "system/inc/data_container.h"
 #include "system/inc/thrust_curve_E12.h"
 #include "system/inc/time_keeper.h"
 
@@ -43,9 +44,7 @@ int main()
     auto timeKeeperLaunch = TimeKeeper();
 
     auto flash = drv::FlashDriver();
-    const auto next_page = flash.get_next_page();
-    printf("FlashDriver::get_next_page() = %d\n", next_page);
-    uint8_t log_data[drv::FlashDriver::usable_flash_page_size];
+    auto data_container = sys::DataContainer();
 
     // sys clock set by oscillator (12mhz) * (fbdiv=100)
     // then 1200/ (postdiv1=6 * postdiv2=2) = 125
@@ -80,16 +79,27 @@ int main()
         printf("Loop!\n");
         timeKeeperStartOfWorld.printTimeuS();
         auto bmi088RawData = bmi088.get_data_raw();
-        puts("raw");
-        bmi088.print_data_raw(bmi088RawData);
+        //puts("raw");
+        //bmi088.print_data_raw(bmi088RawData);
         auto bmi088ConvertedData = bmi088.convert_data(bmi088RawData);
-        puts("converted");
+        //puts("converted");
         //bmi088.print_data_converted(bmi088ConvertedData);
-        bmi088.print_data_converted_floats(bmi088ConvertedData);
+        //bmi088.print_data_converted_floats(bmi088ConvertedData);
 
         bmp280DatasetRaw bmp280RawData = bmp280.get_data_raw();
         bmp280DatasetConverted bmp280ConvertedData = bmp280.convert_data(bmp280RawData);
-        bmp280.print_data_converted(bmp280ConvertedData);
+        //bmp280.print_data_converted(bmp280ConvertedData);
+
+        printf("\n\n");
+        data_container.setBMI088DatasetRaw(bmi088RawData);
+        data_container.setBMI088DatasetConverted(bmi088ConvertedData);
+        data_container.setBMP280DatasetRaw(bmp280RawData);
+        data_container.setBMP280DatasetConverted(bmp280ConvertedData);
+        data_container.setTimeData1(timeKeeperStartOfWorld.deltaTime_us());
+        data_container.setTimeData2(timeKeeperLaunch.deltaTime_us());
+        data_container.setTimeData3(timeKeeperLaunch.deltaTime_us());
+        data_container.printRawLogBytes();
+        data_container.printPackagedTelemetryData();
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
         int x = -5;

@@ -33,8 +33,8 @@ public:
     bmp280DatasetRaw get_data_raw();
     bmp280DatasetConverted convert_data(bmp280DatasetRaw data);
     void forever_test();
-    void print_data_raw(bmp280DatasetRaw data);
-    void print_data_converted(bmp280DatasetConverted data);
+    static void print_data_raw(bmp280DatasetRaw data);
+    static void print_data_converted(bmp280DatasetConverted data);
 
 private:
     // Taken from pico examples

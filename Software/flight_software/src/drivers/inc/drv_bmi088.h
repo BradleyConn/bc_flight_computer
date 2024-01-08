@@ -77,9 +77,9 @@ public:
     AccelTemperatureConverted accel_convert_temperature(AccelTemperatureRaw accel_temperature_raw);
     GyroDataConverted gyro_convert_data(GyroDataRaw gyro_data_raw);
     bmi088DatasetConverted convert_data(bmi088DatasetRaw bmi088_dataset_raw);
-    void print_data_raw(bmi088DatasetRaw bmi088_dataset_raw);
-    void print_data_converted(bmi088DatasetConverted bmi088_dataset_converted);
-    void print_data_converted_floats(bmi088DatasetConverted bmi088_dataset_converted);
+    static void print_data_raw(bmi088DatasetRaw bmi088_dataset_raw);
+    static void print_data_converted(bmi088DatasetConverted bmi088_dataset_converted);
+    static void print_data_converted_floats(bmi088DatasetConverted bmi088_dataset_converted);
 
 private:
     // Taken from pico examples
