@@ -122,7 +122,7 @@ int main()
         telemetry_container.printRawLogBytes();
         //telemetry_container.printPackagedTelemetryData();
 
-        flash.write_next_usable_page_size(telemetry_container.getPackagedRawBytes());
+        //flash.write_next_usable_page_size(telemetry_container.getPackagedRawBytes());
 
         uint32_t pwm_red = 0;
         uint32_t pwm_green = 0;
