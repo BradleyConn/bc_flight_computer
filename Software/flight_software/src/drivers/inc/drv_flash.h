@@ -8,7 +8,8 @@ namespace drv
 {
 
 // A quick and dirty flash driver for logging
-// TODO: Use STL containers instead of C arrays
+// TODO: Use STL containers instead of C arrays and clean this up
+// TODO: This should be split into a flash driver and a data logger
 class FlashDriver
 {
 public:
@@ -20,6 +21,7 @@ public:
 
     // This is the main function that should be used
     // the data size is flash_page_size - magic_bytes
+    // NOTE: This appears to take 639 us to execute
     void write_next_usable_page_size(uint8_t* data);
 
     void dump_log_this_session();

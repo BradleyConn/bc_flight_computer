@@ -52,7 +52,9 @@ int main()
     }
     //flash.write(next_page * drv::FlashDriver::flash_page_size + sizeof(drv::FlashDriver::magic_header), data, drv::FlashDriver::usable_flash_page_size);
     printf("FlashDriver::write_next_usable_page_size() - write data to page %d\n", next_page);
+    timeKeeperLaunch.mark();
     flash.write_next_usable_page_size(data);
+    timeKeeperLaunch.printTimeuS();
     data[2] = 0x99;
     flash.write_next_usable_page_size(data);
     data[2] = 0x88;
