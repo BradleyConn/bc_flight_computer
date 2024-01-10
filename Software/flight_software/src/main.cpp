@@ -31,7 +31,7 @@ int main() {
 #include "hardware/pwm.h"
 #include "pico/stdlib.h"
 #include "system/inc/telemetry_container.h"
-#include "system/inc/thrust_curve_E12.h"
+#include "system/inc/thrust_curves/thrust_curve_E12.h"
 #include "system/inc/time_keeper.h"
 
 int main()

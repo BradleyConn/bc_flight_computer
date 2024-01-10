@@ -1,4 +1,4 @@
-#include "thrust_curve_E12.h"
+#include "thrust_curves/thrust_curve_E12.h"
 #include <stdint.h>
 
 struct CurveAndIndex {
