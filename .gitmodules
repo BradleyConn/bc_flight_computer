@@ -1,3 +1,6 @@
 [submodule "Software/pico-sdk"]
 	path = Software/pico-sdk
 	url = https://github.com/raspberrypi/pico-sdk.git
+[submodule "Software/flight_software/libs/Orientation"]
+	path = Software/flight_software/libs/Orientation
+	url = https://github.com/BradleyConn/Orientation
