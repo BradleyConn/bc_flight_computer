@@ -1,15 +1,12 @@
 #include "thrust_curves/thrust_curve_E12.h"
 #include <stdint.h>
+#include <stdio.h>
 
 struct CurveAndIndex {
     uint8_t curve;
     uint32_t index;
 };
 
-struct ThrustDataUint32 {
-    uint32_t t_mS; // time in milliseconds
-    uint32_t f_mN; // thrust in millinewtons
-};
 
 //This is the data for an Estes E12 motor
 // Use two thrust curves because the initial thrust changes rapidly
@@ -100,4 +97,12 @@ uint32_t ThrustCurveE12::get_thrust_mN(uint32_t time_ms)
         thrust_mN = thrustCurve_400_to_2500_ms_by_100ms[curveAndIndex.index].f_mN;
     }
     return thrust_mN;
+}
+
+void ThrustCurveE12::print_test()
+{
+    for (uint32_t time_ms = 0; time_ms < 2500; time_ms += 25) {
+        uint32_t thrust_mN = get_thrust_mN(time_ms);
+        printf("time: %d, thrust: %d\n", time_ms, thrust_mN);
+    }
 }
