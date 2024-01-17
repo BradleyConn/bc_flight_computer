@@ -1,26 +1,3 @@
-#include "pico/stdlib.h"
-#include <stdio.h>
-
-#if 0
-int main() {
-    setup_default_uart();
-    while(1){
-        printf("Hello, world!\n");
-    }
-    return 0;
-}
-#endif
-
-#if 1
-
-/**
- * Copyright (c) 2020 Raspberry Pi (Trading) Ltd.
- *
- * SPDX-License-Identifier: BSD-3-Clause
- */
-
-// Output PWM signals on pins 0 and 1
-
 #include "../bsp/enos.h"
 #include "drivers/inc/drv_bmi088.h"
 #include "drivers/inc/drv_bmp280.h"
@@ -28,14 +5,16 @@ int main() {
 #include "drivers/inc/drv_flash.h"
 #include "drivers/inc/drv_led.h"
 #include "drivers/inc/drv_servo.h"
-#include "hardware/pwm.h"
-#include "pico/stdlib.h"
 #include "system/inc/telemetry_container.h"
-#include "system/inc/thrust_curves/thrust_curve_E12.h"
+#include "system/inc/thrust_curves/thrust_curve_E9.h"
 #include "system/inc/time_keeper.h"
+#include "tests/characterize_servo_test.h"
+#include <stdio.h>
 
 int main()
 {
+    characterize_servo_test();
+
     setup_default_uart();
     printf("Hello, world! - This is Enos your flight computer speaking!\n");
     auto timeKeeperStartOfWorld = TimeKeeper();
@@ -79,36 +58,54 @@ int main()
     auto servo_C = drv::servo(PICO_DEFAULT_SERVO_C_PIN, drv::servo::servo_type::Analog, 0);
     auto servo_B = drv::servo(PICO_DEFAULT_SERVO_B_PIN, drv::servo::servo_type::Analog, 0);
     auto servo_A = drv::servo(PICO_DEFAULT_SERVO_A_PIN, drv::servo::servo_type::Analog, 0);
-    auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED, 50);
-    auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 50);
+    auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED, 2);
+    auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 2);
     auto buzzer = drv::buzzer(PICO_DEFAULT_BUZZER_PIN);
     auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280,
                               PICO_DEFAULT_SPI_CS_PIN_BMP280, drv::bmp280::spi_module_1);
     auto bmi088 = drv::bmi088(PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088, PICO_DEFAULT_SPI_MOSI_PIN_BMI088,
                               PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
     // Todo: This should probably be the IThrustCurve interface. Keep it consistent for now with everything else.
-    ThrustCurveE12 thrustCurve = ThrustCurveE12();
+    ThrustCurveE9 thrust_curve = ThrustCurveE9();
+    thrust_curve.print_test();
 
     puts("Init bmp280!");
     bmp280.init();
     //bmp280.forever_test();
     puts("Init bmi088!");
     bmi088.init();
-    //buzzer.set_frequency(2700);
+    buzzer.set_frequency_hz(2700);
+    //buzzer.set_volume_percentage(2);
 
+    uint32_t loopcount = 0;
     while (1) {
-        printf("Loop!\n");
+        printf("Loopcount = %lu\n", loopcount);
+        loopcount++;
         timeKeeperStartOfWorld.printTimeuS();
+        auto timeKeeperA = TimeKeeper();
+        timeKeeperA.mark();
+        //35us
         auto bmi088RawData = bmi088.get_data_raw();
+        timeKeeperA.printTimeuS();
         //puts("raw");
         //bmi088.print_data_raw(bmi088RawData);
+        timeKeeperA.mark();
+        //10us
         auto bmi088ConvertedData = bmi088.convert_data(bmi088RawData);
+        timeKeeperA.printTimeuS();
         //puts("converted");
         bmi088.print_data_converted(bmi088ConvertedData);
         //bmi088.print_data_converted_floats(bmi088ConvertedData);
 
+        puts("bmp280");
+        timeKeeperA.mark();
+        // 10us
         bmp280DatasetRaw bmp280RawData = bmp280.get_data_raw();
+        timeKeeperA.printTimeuS();
+        timeKeeperA.mark();
+        //2us
         bmp280DatasetConverted bmp280ConvertedData = bmp280.convert_data(bmp280RawData);
+        timeKeeperA.printTimeuS();
         //bmp280.print_data_converted(bmp280ConvertedData);
 
         printf("\n\n");
@@ -119,7 +116,7 @@ int main()
         telemetry_container.setTimeData1(timeKeeperStartOfWorld.deltaTime_us());
         telemetry_container.setTimeData2(timeKeeperLaunch.deltaTime_us());
         telemetry_container.setTimeData3(timeKeeperLaunch.deltaTime_us());
-        telemetry_container.printRawLogBytes();
+        //telemetry_container.printRawLogBytes();
         //telemetry_container.printPackagedTelemetryData();
 
         //flash.write_next_usable_page_size(telemetry_container.getPackagedRawBytes());
@@ -150,12 +147,13 @@ int main()
             }
             // led_r.set_pwm(pwm_red);
             // led_g.set_pwm(pwm_green);
-            for (volatile int j = 0; j < 1000000; j++) {
-            }
         }
+        sleep_ms(500);
+        //servo_E.set_angle_centi_degrees(-9000 + (loopcount%3) * 9000);
+        //buzzer.set_frequency_hz((loopcount % 50) * 100);
+        //servo_E.set_angle_centi_degrees(loopcount*100);
     }
 
     // Note we could also use pwm_set_gpio_level(gpio, x) which looks up the
     // correct slice and channel for a given GPIO.
 }
-#endif

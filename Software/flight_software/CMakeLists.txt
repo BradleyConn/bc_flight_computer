@@ -27,11 +27,15 @@ add_executable(main
     src/drivers/src/drv_bmi088.cpp
     src/drivers/src/drv_buzzer.cpp
     src/drivers/src/drv_flash.cpp
+    src/drivers/src/drv_gpio.cpp
 
     src/system/src/torque_to_tvc_angle.cpp
     src/system/src/time_keeper.cpp
     src/system/src/telemetry_container.cpp
     src/system/src/thrust_curves/thrust_curve_E12.cpp
+    src/system/src/thrust_curves/thrust_curve_E9.cpp
+
+    src/tests/characterize_servo_test.cpp
 
 )
 target_include_directories(main
