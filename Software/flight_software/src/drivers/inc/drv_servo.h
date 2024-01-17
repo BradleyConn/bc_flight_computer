@@ -19,7 +19,9 @@ public:
 
     // Set the cent-degree angle! The degree * 100. So 4.32 is 432
     // This is to avoid floats.
+    // This is between -90 and +90 so maximum -9000 to +9000
     void set_angle_centi_degrees(int32_t centi_degree);
+    void turn_off();
 
 private:
     uint _gpio;

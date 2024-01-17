@@ -116,10 +116,8 @@ void bmp280::read_registers(uint8_t reg, uint8_t* buf, uint16_t len)
     reg |= READ_BIT;
     cs_select();
     spi_write_blocking(_spi_inst, &reg, 1);
-    sleep_ms(10);
     spi_read_blocking(_spi_inst, 0, buf, len);
     cs_deselect();
-    sleep_ms(10);
 }
 
 /* The following compensation functions are required to convert from the raw ADC

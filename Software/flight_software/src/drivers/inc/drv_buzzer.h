@@ -13,6 +13,8 @@ public:
     buzzer(uint gpio);
     ~buzzer();
 
+    // The pitch
+    // 2700 is the loudest for this piezo buzzer
     void set_frequency_hz(uint32_t frequency);
     void set_volume_percentage(uint8_t volume_percent);
 

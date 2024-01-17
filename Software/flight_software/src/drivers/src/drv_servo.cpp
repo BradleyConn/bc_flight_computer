@@ -1,5 +1,6 @@
 #include "../inc/drv_servo.h"
 #include "hardware/pwm.h"
+#include "drv_servo.h"
 
 namespace drv
 {
@@ -18,11 +19,9 @@ servo::servo(uint gpio, servo_type type, int32_t starting_angle_centi_degrees)
 
     // servo takes a uint16_t which is 65535. Can't fit 2,500,000
     // 2,500,000/65535 ~=38. Use 64 div
-    //    if (_gpio == 22) {
     pwm_config config = pwm_get_default_config();
     pwm_config_set_clkdiv_int(&config, 64);
     pwm_init(_slice_num, &config, true);
-    //    }
 
     // The max counter
     if (_type == servo_type::Analog) {
@@ -65,4 +64,8 @@ void servo::set_angle_centi_degrees(int32_t centi_degrees)
     pwm_set_chan_level(_slice_num, _channel, angle_steps / 64);
 }
 
+void servo::turn_off()
+{
+    pwm_set_chan_level(_slice_num, _channel, 0);
+}
 } //namespace drv
