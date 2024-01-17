@@ -37,6 +37,9 @@ add_executable(main
 
     src/tests/characterize_servo_test.cpp
 
+    libs/Orientation/Quaternion/Quaternion.cpp
+    libs/Orientation/Orientation/Orientation.cpp
+
 )
 target_include_directories(main
  PRIVATE
