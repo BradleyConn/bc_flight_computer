@@ -39,3 +39,8 @@ void TimeKeeper::printTimeS() const
 {
     printf("TimeKeeper: %llu s\n", deltaTime_us() / 1000000);
 }
+
+uint64_t TimeKeeper::getAbsoluteTime_us()
+{
+    return time_us_64();
+}

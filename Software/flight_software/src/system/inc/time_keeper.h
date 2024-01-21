@@ -14,6 +14,8 @@ public:
     void printTimeMS() const;
     void printTimeS() const;
 
+    static uint64_t getAbsoluteTime_us();
+
 private:
     uint64_t markTime;
     bool valid;
