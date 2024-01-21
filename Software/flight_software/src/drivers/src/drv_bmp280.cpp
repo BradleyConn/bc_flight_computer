@@ -104,7 +104,6 @@ void bmp280::write_register(uint8_t reg, uint8_t data)
     cs_select();
     spi_write_blocking(_spi_inst, buf, 2);
     cs_deselect();
-    sleep_ms(10);
 }
 
 void bmp280::read_registers(uint8_t reg, uint8_t* buf, uint16_t len)
