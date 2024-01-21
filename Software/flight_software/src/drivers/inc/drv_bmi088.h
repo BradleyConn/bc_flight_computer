@@ -69,6 +69,8 @@ public:
     uint8_t read_gyro_id();
     uint8_t read_accel_id();
     void init();
+    void run_gyro_calibration();
+    GyroDataConverted get_gyro_calibration_values();
     AccelDataRaw accel_get_data_raw();
     AccelTemperatureRaw accel_get_temperature_raw();
     GyroDataRaw gyro_get_data_raw();
@@ -122,9 +124,10 @@ private:
     uint _accel_int_pin;
     uint _gyro_int_pin;
 
-    //uint64_t _accel_interrupt_time;
-    //uint64_t _gyro_interrupt_time;
-    uint64_t gyro_interrupt_reset_time_tracker;
+    // Gyro calibration
+    int32_t _gyro_x_bias = 0;
+    int32_t _gyro_y_bias = 0;
+    int32_t _gyro_z_bias = 0;
 
 }; // class bmi088
 }; // namespace drv

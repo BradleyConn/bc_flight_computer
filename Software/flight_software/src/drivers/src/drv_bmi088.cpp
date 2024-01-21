@@ -169,6 +169,38 @@ void bmi088::init()
     gpio_set_irq_enabled_with_callback(_gyro_int_pin, GPIO_IRQ_EDGE_RISE, true, &gyro_interrupt_handler);
 }
 
+void bmi088::run_gyro_calibration()
+{
+    int64_t gyroXOffsetSum = 0;
+    int64_t gyroYOffsetSum = 0;
+    int64_t gyroZOffsetSum = 0;
+    for (int i = 0; i < 10000; i++) {
+        while (gyro_check_interrupt_data_ready() == false) {
+            //printf("Waiting for gyro data ready\n");
+        }
+        //read and clear the interrupt
+        gyro_interrupt_reg_clear();
+
+        bmi088DatasetRaw bmi088RawData = get_data_raw();
+        bmi088DatasetConverted bmi088ConvertedData = convert_data(bmi088RawData);
+        gyroXOffsetSum += bmi088ConvertedData.gyro_data_converted.x_milli_degrees_per_sec;
+        gyroYOffsetSum += bmi088ConvertedData.gyro_data_converted.y_milli_degrees_per_sec;
+        gyroZOffsetSum += bmi088ConvertedData.gyro_data_converted.z_milli_degrees_per_sec;
+    }
+    _gyro_x_bias = gyroXOffsetSum / 10000;
+    _gyro_y_bias = gyroYOffsetSum / 10000;
+    _gyro_z_bias = gyroZOffsetSum / 10000;
+}
+
+GyroDataConverted bmi088::get_gyro_calibration_values()
+{
+    GyroDataConverted gyroDataConverted;
+    gyroDataConverted.x_milli_degrees_per_sec = _gyro_x_bias;
+    gyroDataConverted.y_milli_degrees_per_sec = _gyro_y_bias;
+    gyroDataConverted.z_milli_degrees_per_sec = _gyro_z_bias;
+    return gyroDataConverted;
+}
+
 bool bmi088::accel_check_interrupt_data_ready()
 {
     return gpio_get(_accel_int_pin);
@@ -297,9 +329,12 @@ GyroDataConverted bmi088::gyro_convert_data(GyroDataRaw gyro_data_raw)
 {
     GyroDataConverted gyroDataConverted;
     //  rate of 2000 deg/sec is 61 milli-degrees/sec/LSB
-    gyroDataConverted.x_milli_degrees_per_sec = (gyro_data_raw.x * 610)/10;
-    gyroDataConverted.y_milli_degrees_per_sec = (gyro_data_raw.y * 610)/10;
-    gyroDataConverted.z_milli_degrees_per_sec = (gyro_data_raw.z * 610)/10;
+    gyroDataConverted.x_milli_degrees_per_sec = (gyro_data_raw.x * 610) / 10;
+    gyroDataConverted.y_milli_degrees_per_sec = (gyro_data_raw.y * 610) / 10;
+    gyroDataConverted.z_milli_degrees_per_sec = (gyro_data_raw.z * 610) / 10;
+    gyroDataConverted.x_milli_degrees_per_sec -= _gyro_x_bias;
+    gyroDataConverted.y_milli_degrees_per_sec -= _gyro_y_bias;
+    gyroDataConverted.z_milli_degrees_per_sec -= _gyro_z_bias;
     return gyroDataConverted;
 }
 

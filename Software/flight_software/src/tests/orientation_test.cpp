@@ -32,26 +32,13 @@ void orientation_test()
 
     // Calibrate the gyros
     puts("Calibrating gyros...");
-    int64_t gyroXOffset = 0;
-    int64_t gyroYOffset = 0;
-    int64_t gyroZOffset = 0;
-    for(int i = 0; i < 10000; i++)
-    {
-        while (bmi088.gyro_check_interrupt_data_ready() == false) {
-            //printf("Waiting for gyro data ready\n");
-        }
-        //read and clear the interrupt
-        bmi088.gyro_interrupt_reg_clear();
-
-        bmi088DatasetRaw bmi088RawData = bmi088.get_data_raw();
-        bmi088DatasetConverted bmi088ConvertedData = bmi088.convert_data(bmi088RawData);
-        gyroXOffset += bmi088ConvertedData.gyro_data_converted.x_milli_degrees_per_sec;
-        gyroYOffset += bmi088ConvertedData.gyro_data_converted.y_milli_degrees_per_sec;
-        gyroZOffset += bmi088ConvertedData.gyro_data_converted.z_milli_degrees_per_sec;
-    }
-    float gyroXOffset_f = (float)gyroXOffset / 10000.0;
-    float gyroYOffset_f = (float)gyroYOffset / 10000.0;
-    float gyroZOffset_f = (float)gyroZOffset / 10000.0;
+    bmi088.run_gyro_calibration();
+    puts("Calibrated gyros!");
+    // get calibration values
+    auto gyroCalibrationValues = bmi088.get_gyro_calibration_values();
+    auto gyroXOffset_f = ((float)gyroCalibrationValues.x_milli_degrees_per_sec) / 1000.0;
+    auto gyroYOffset_f = ((float)gyroCalibrationValues.y_milli_degrees_per_sec) / 1000.0;
+    auto gyroZOffset_f = ((float)gyroCalibrationValues.z_milli_degrees_per_sec) / 1000.0;
 
     printf("Gyro offsets: %f, %f, %f\n", gyroXOffset_f, gyroYOffset_f, gyroZOffset_f);
 
