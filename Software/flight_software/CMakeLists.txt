@@ -36,6 +36,7 @@ add_executable(main
     src/system/src/thrust_curves/thrust_curve_E9.cpp
 
     src/tests/characterize_servo_test.cpp
+    src/tests/orientation_test.cpp
 
     libs/Orientation/Quaternion/Quaternion.cpp
     libs/Orientation/Orientation/Orientation.cpp

@@ -155,7 +155,7 @@ void bmi088::init()
     // Set the range to 2000 deg/s, 61 milli-degree/sec/LSB
     gyro_write_register(0x0F, 0x00);
     // Set the ODR to 2000hz (500us), and bandwidth to 532Hz
-    gyro_write_register(0x10, 0x01);
+    gyro_write_register(0x10, 0x00);
     // Enable new data interrupt to be triggered on new data
     gyro_write_register(0x15, 0x80);
 
@@ -297,9 +297,9 @@ GyroDataConverted bmi088::gyro_convert_data(GyroDataRaw gyro_data_raw)
 {
     GyroDataConverted gyroDataConverted;
     //  rate of 2000 deg/sec is 61 milli-degrees/sec/LSB
-    gyroDataConverted.x_milli_degrees_per_sec = gyro_data_raw.x * 61;
-    gyroDataConverted.y_milli_degrees_per_sec = gyro_data_raw.y * 61;
-    gyroDataConverted.z_milli_degrees_per_sec = gyro_data_raw.z * 61;
+    gyroDataConverted.x_milli_degrees_per_sec = (gyro_data_raw.x * 610)/10;
+    gyroDataConverted.y_milli_degrees_per_sec = (gyro_data_raw.y * 610)/10;
+    gyroDataConverted.z_milli_degrees_per_sec = (gyro_data_raw.z * 610)/10;
     return gyroDataConverted;
 }
 

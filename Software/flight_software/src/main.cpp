@@ -9,11 +9,13 @@
 #include "system/inc/thrust_curves/thrust_curve_E9.h"
 #include "system/inc/time_keeper.h"
 #include "tests/characterize_servo_test.h"
+#include "tests/orientation_test.h"
 #include <stdio.h>
 
 int main()
 {
     //characterize_servo_test();
+    orientation_test();
     setup_default_uart();
     printf("Hello, world! - This is Enos your flight computer speaking!\n");
     auto timeKeeperStartOfWorld = TimeKeeper();
