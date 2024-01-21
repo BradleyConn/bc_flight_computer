@@ -13,8 +13,7 @@
 
 int main()
 {
-    characterize_servo_test();
-
+    //characterize_servo_test();
     setup_default_uart();
     printf("Hello, world! - This is Enos your flight computer speaking!\n");
     auto timeKeeperStartOfWorld = TimeKeeper();
@@ -23,7 +22,7 @@ int main()
     auto timeKeeperLaunch = TimeKeeper();
 
     auto flash = drv::FlashDriver();
-    {
+    /*{
         // read the last session data and use the telemetry container to print it
         if (flash.has_previous_session()) {
             printf("FlashDriver::FlashDriver() - found a previous session, print data using the telemetry container\n");
@@ -43,16 +42,9 @@ int main()
             telemetry_container.printRawLogBytes();
             printf("DONE!\n\n");
         }
-    }
+    }*/
     auto telemetry_container = sys::TelemetryContainer();
 
-    // sys clock set by oscillator (12mhz) * (fbdiv=100)
-    // then 1200/ (postdiv1=6 * postdiv2=2) = 125
-    //
-    // set fsys to 125
-    // then 125mhz gives 8ns period
-    // 20ms/8ns = 2,500,000 = "wrap" (minus 1 because 0 indexed)
-    // then 1.5ms/8ns = 187,500 = "level" (minus 1 because 0 indexed)
     auto servo_E = drv::servo(PICO_DEFAULT_SERVO_E_PIN, drv::servo::servo_type::Analog, 0);
     auto servo_D = drv::servo(PICO_DEFAULT_SERVO_D_PIN, drv::servo::servo_type::Analog, 0);
     auto servo_C = drv::servo(PICO_DEFAULT_SERVO_C_PIN, drv::servo::servo_type::Analog, 0);
@@ -64,10 +56,10 @@ int main()
     auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280,
                               PICO_DEFAULT_SPI_CS_PIN_BMP280, drv::bmp280::spi_module_1);
     auto bmi088 = drv::bmi088(PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088, PICO_DEFAULT_SPI_MOSI_PIN_BMI088,
-                              PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0);
+                              PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0,
+                              PICO_DEFAULT_SPI_ACCEL_INT_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_INT_PIN_BMI088);
     // Todo: This should probably be the IThrustCurve interface. Keep it consistent for now with everything else.
     ThrustCurveE9 thrust_curve = ThrustCurveE9();
-    thrust_curve.print_test();
 
     puts("Init bmp280!");
     bmp280.init();
@@ -77,38 +69,70 @@ int main()
     buzzer.set_frequency_hz(2700);
     //buzzer.set_volume_percentage(2);
 
+    //servo_E.turn_off();
+    //while (1)
+    //    ;
+
     uint32_t loopcount = 0;
+    auto timeKeeperLoopTime = TimeKeeper();
+    timeKeeperLoopTime.mark();
     while (1) {
-        printf("Loopcount = %lu\n", loopcount);
         loopcount++;
-        timeKeeperStartOfWorld.printTimeuS();
+        if (loopcount % 1000 == 0) {
+            printf("Loopcount = %lu\n", loopcount);
+            timeKeeperLoopTime.printTimeuS();
+            timeKeeperLoopTime.mark();
+        }
+        while (bmi088.accel_check_interrupt_data_ready() == false) {
+            //printf("Waiting for accel data ready\n");
+        }
+        //read and clear the interrupt
+        bmi088.accel_interrupt_reg_clear();
+
+        while (bmi088.gyro_check_interrupt_data_ready() == false) {
+            //printf("Waiting for gyro data ready\n");
+        }
+        //read and clear the interrupt
+        bmi088.gyro_interrupt_reg_clear();
+
+        bmi088DatasetRaw bmi088RawData = bmi088.get_data_raw();
+        bmi088DatasetConverted bmi088ConvertedData = bmi088.convert_data(bmi088RawData);
+    }
+
+    while (1) {
+        //printf("Loopcount = %lu\n", loopcount);
+        loopcount++;
+        while (bmi088.accel_check_interrupt_data_ready() == false) {
+            printf("Waiting for accel data ready\n");
+        }
+        //timeKeeperStartOfWorld.printTimeuS();
         auto timeKeeperA = TimeKeeper();
         timeKeeperA.mark();
         //35us
         auto bmi088RawData = bmi088.get_data_raw();
-        timeKeeperA.printTimeuS();
+        //timeKeeperA.printTimeuS();
         //puts("raw");
         //bmi088.print_data_raw(bmi088RawData);
         timeKeeperA.mark();
         //10us
         auto bmi088ConvertedData = bmi088.convert_data(bmi088RawData);
-        timeKeeperA.printTimeuS();
+        //timeKeeperA.printTimeuS();
         //puts("converted");
-        bmi088.print_data_converted(bmi088ConvertedData);
+        //bmi088.print_data_converted(bmi088ConvertedData);
         //bmi088.print_data_converted_floats(bmi088ConvertedData);
 
-        puts("bmp280");
+        //puts("bmp280");
         timeKeeperA.mark();
         // 10us
         bmp280DatasetRaw bmp280RawData = bmp280.get_data_raw();
-        timeKeeperA.printTimeuS();
+        //timeKeeperA.printTimeuS();
         timeKeeperA.mark();
         //2us
         bmp280DatasetConverted bmp280ConvertedData = bmp280.convert_data(bmp280RawData);
-        timeKeeperA.printTimeuS();
+        //timeKeeperA.printTimeuS();
         //bmp280.print_data_converted(bmp280ConvertedData);
 
-        printf("\n\n");
+        //printf("\n\n");
         telemetry_container.setBMI088DatasetRaw(bmi088RawData);
         telemetry_container.setBMI088DatasetConverted(bmi088ConvertedData);
         telemetry_container.setBMP280DatasetRaw(bmp280RawData);
@@ -148,12 +172,8 @@ int main()
             // led_r.set_pwm(pwm_red);
             // led_g.set_pwm(pwm_green);
         }
-        sleep_ms(500);
+        //sleep_ms(500);
         //servo_E.set_angle_centi_degrees(-9000 + (loopcount%3) * 9000);
         //buzzer.set_frequency_hz((loopcount % 50) * 100);
-        //servo_E.set_angle_centi_degrees(loopcount*100);
     }
-
-    // Note we could also use pwm_set_gpio_level(gpio, x) which looks up the
-    // correct slice and channel for a given GPIO.
 }

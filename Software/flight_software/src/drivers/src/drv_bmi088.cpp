@@ -1,5 +1,7 @@
 #define __STDC_FORMAT_MACROS
 #include "../inc/drv_bmi088.h"
+#include "../inc/time_keeper.h"
+#include "drv_bmi088.h"
 #include <inttypes.h>
 #include <stdio.h>
 
@@ -7,12 +9,15 @@
 namespace drv
 {
 
-bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi_module_num spi_module)
+bool bmi088::new_gyro_data_ready = false;
+bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi_module_num spi_module, uint accel_int_pin, uint gyro_int_pin)
     : _sclk(sclk)
     , _miso(miso)
     , _mosi(mosi)
     , _accel_cs(accel_cs)
     , _gyro_cs(gyro_cs)
+    , _accel_int_pin(accel_int_pin)
+    , _gyro_int_pin(gyro_int_pin)
 {
     if (spi_module == spi_module_0) {
         _spi_inst = spi0;
@@ -35,11 +40,20 @@ bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi
     gpio_init(_gyro_cs);
     gpio_set_dir(_gyro_cs, GPIO_OUT);
     gpio_put(_gyro_cs, 1);
+
+    // Set the interrupt pins as inputs
+    gpio_init(_accel_int_pin);
+    gpio_set_dir(_accel_int_pin, GPIO_IN);
+    gpio_pull_down(_accel_int_pin);
+    gpio_init(_gyro_int_pin);
+    gpio_set_dir(_gyro_int_pin, GPIO_IN);
+    gpio_pull_down(_gyro_int_pin);
 }
 
 // TODO: Unset pins
 bmi088::~bmi088()
 {
+    //unset interrupts
 }
 
 uint8_t bmi088::read_accel_id()
@@ -122,8 +136,8 @@ void bmi088::init()
     sleep_ms(50);
 
     // Now configure it
-    // Set the sample rate to 145hz - 1600 ODR, 4x oversampling
-    accel_write_register(0x40, 0x8C);
+    // Set the ODR 1600 (625 us), no oversampling - 280hz bandwidth
+    accel_write_register(0x40, 0xAC);
     // Set +-24g
     accel_write_register(0x41, 0x03);
     // Set interrupt pin 1 as output
@@ -136,15 +150,58 @@ void bmi088::init()
     // Now the Gyro
     // Set the interrupt 3 pin to active high
     gyro_write_register(0x16, 0x01);
-    // Set the interrupt 3 pin to active
-    gyro_write_register(0x17, 0x01);
+    // Set the interrupt 3 pin to new data
+    gyro_write_register(0x18, 0x01);
     // Set the range to 2000 deg/s, 61 milli-degree/sec/LSB
     gyro_write_register(0x0F, 0x00);
-    // Set the bandwidth to 200Hz
-    gyro_write_register(0x10, 0x04);
+    // Set the ODR to 2000hz (500us), and bandwidth to 532Hz
+    gyro_write_register(0x10, 0x01);
+    // Enable new data interrupt to be triggered on new data
+    gyro_write_register(0x15, 0x80);
 
     // sleep to let the new registers kick in
     sleep_ms(50);
+
+    //set the interrupts
+    //accel_int_pin
+    //gpio_set_irq_enabled_with_callback(_accel_int_pin, GPIO_IRQ_EDGE_RISE, true, &accel_interrupt_handler);
+    //gyro_int_pin
+    gpio_set_irq_enabled_with_callback(_gyro_int_pin, GPIO_IRQ_EDGE_RISE, true, &gyro_interrupt_handler);
+}
+
+bool bmi088::accel_check_interrupt_data_ready()
+{
+    return gpio_get(_accel_int_pin);
+}
+
+bool bmi088::accel_interrupt_reg_clear()
+{
+    uint8_t reg_val = 0x00;
+    accel_read_registers(0x1D, &reg_val, 1);
+    if (reg_val == 0x00) {
+        return false;
+    }
+    return true;
+}
+
+bool bmi088::gyro_check_interrupt_data_ready()
+{
+    return new_gyro_data_ready;
+}
+
+bool bmi088::gyro_interrupt_reg_clear()
+{
+    if (new_gyro_data_ready == false) {
+        return false;
+    } else {
+        new_gyro_data_ready = false;
+        return true;
+    }
+}
+
+void bmi088::gyro_interrupt_handler(uint gpio, uint32_t events)
+{
+    new_gyro_data_ready = true;
 }
 
 AccelDataRaw bmi088::accel_get_data_raw()

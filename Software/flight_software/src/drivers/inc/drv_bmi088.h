@@ -64,7 +64,7 @@ public:
         gyro = 0x01,
     };
 
-    bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi_module_num spi_module);
+    bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi_module_num spi_module, uint accel_int, uint gyro_int);
     ~bmi088();
     uint8_t read_gyro_id();
     uint8_t read_accel_id();
@@ -81,8 +81,15 @@ public:
     static void print_data_converted(bmi088DatasetConverted bmi088_dataset_converted);
     static void print_data_converted_floats(bmi088DatasetConverted bmi088_dataset_converted);
 
+    bool accel_check_interrupt_data_ready();
+    bool accel_interrupt_reg_clear();
+    // Gyro doesn't clear by reading interrupt. Must wait "280us-400us"
+    // Keep track with a flag that resets every rising edge of the gyro interrupt pin using an IRQ
+    bool gyro_check_interrupt_data_ready();
+    // Doesn't actually clear but clear the used flag
+    bool gyro_interrupt_reg_clear();
+
 private:
-    // Taken from pico examples
     inline void accel_cs_select();
     inline void accel_cs_deselect();
     inline void gyro_cs_select();
@@ -97,6 +104,14 @@ private:
     void accel_print_reg_expected(uint8_t reg, uint8_t expected);
     void accel_register_dump();
 
+    // XXX: This forces only one instance of the class to be created.
+    // For now just live with it because there is only one IMU.
+    // But ideally this should be updated to handle multiple instances.
+    //void accel_interrupt_handler();
+    //gpio_irq_callback_t is void(*)(uint gpio, uint32_t events) ;
+    static void gyro_interrupt_handler(uint gpio, uint32_t events);
+    static bool new_gyro_data_ready;
+
 private:
     uint _sclk;
     uint _miso;
@@ -104,6 +119,13 @@ private:
     uint _accel_cs;
     uint _gyro_cs;
     spi_inst_t* _spi_inst;
+    uint _accel_int_pin;
+    uint _gyro_int_pin;
+
+    //uint64_t _accel_interrupt_time;
+    //uint64_t _gyro_interrupt_time;
+    uint64_t gyro_interrupt_reset_time_tracker;
+
 }; // class bmi088
 }; // namespace drv
 #endif
