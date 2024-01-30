@@ -15,7 +15,7 @@
 int main()
 {
     //characterize_servo_test();
-    orientation_test();
+    orientation_test2();
     setup_default_uart();
     printf("Hello, world! - This is Enos your flight computer speaking!\n");
     auto timeKeeperStartOfWorld = TimeKeeper();
@@ -65,9 +65,13 @@ int main()
 
     puts("Init bmp280!");
     bmp280.init();
+    bmp280.calculate_baseline_pressure_and_altitude_cm();
     //bmp280.forever_test();
     puts("Init bmi088!");
     bmi088.init();
+    bmi088.run_gyro_calibration();
+    auto gyroCalibrationValues = bmi088.get_gyro_calibration_values();
+
     buzzer.set_frequency_hz(2700);
     //buzzer.set_volume_percentage(2);
 
