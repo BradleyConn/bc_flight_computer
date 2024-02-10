@@ -4,7 +4,6 @@
 #include "hardware/spi.h"
 #include "pico/stdlib.h"
 
-
 struct bmp280DatasetRaw {
     int32_t temperature_raw;
     int32_t pressure_raw;
@@ -30,8 +29,14 @@ public:
     ~bmp280();
     uint8_t readID();
     void init();
+    void calculate_baseline_pressure_and_altitude_cm();
     bmp280DatasetRaw get_data_raw();
     bmp280DatasetConverted convert_data(bmp280DatasetRaw data);
+    int32_t get_baseline_pressure_Pa();
+    int32_t get_baseline_altitude_cm();
+    int32_t pressure_Pa_to_absolute_altitude_cm(int32_t pressure_Pa);
+    int32_t pressure_Pa_to_relative_altitude_cm(int32_t pressure_Pa);
+    float cm_to_feet(int32_t cm);
     void forever_test();
     static void print_data_raw(bmp280DatasetRaw data);
     static void print_data_converted(bmp280DatasetConverted data);
@@ -52,6 +57,9 @@ private:
     uint _mosi;
     uint _cs;
     spi_inst_t* _spi_inst;
+
+    int32_t _baseline_pressure_Pa = 0;
+    int32_t _baseline_altitude_cm = 0;
 
 private: // temporary variables the example code used.
     int32_t t_fine;

@@ -63,6 +63,20 @@ void bmp280::init()
     write_register(0xF5, 0x00); // Set standby time to 0.5ms (smallest) and IIR filter to 0, and 4-wire SPI mode
 }
 
+void bmp280::calculate_baseline_pressure_and_altitude_cm()
+{
+    int64_t base_pressure = 0;
+    for (int i = 0; i < 50; i++) {
+        bmp280DatasetRaw data = get_data_raw();
+        bmp280DatasetConverted converted_data = convert_data(data);
+        base_pressure += converted_data.pressure_Pa;
+        sleep_ms(50);
+    }
+    base_pressure /= 50;
+    _baseline_pressure_Pa = base_pressure;
+    _baseline_altitude_cm = pressure_Pa_to_absolute_altitude_cm(_baseline_pressure_Pa);
+}
+
 bmp280DatasetRaw bmp280::get_data_raw()
 {
     bmp280DatasetRaw data;
@@ -182,6 +196,36 @@ void bmp280::read_compensation_parameters()
     dig_P7 = buffer[18] | (buffer[19] << 8);
     dig_P8 = buffer[20] | (buffer[21] << 8);
     dig_P9 = buffer[22] | (buffer[23] << 8);
+}
+
+int32_t bmp280::get_baseline_pressure_Pa()
+{
+    return _baseline_pressure_Pa;
+}
+
+int32_t bmp280::get_baseline_altitude_cm()
+{
+    return _baseline_altitude_cm;
+}
+
+int32_t bmp280::pressure_Pa_to_relative_altitude_cm(int32_t pressure_Pa)
+{
+    return pressure_Pa_to_absolute_altitude_cm(pressure_Pa) - _baseline_altitude_cm;
+}
+
+int32_t bmp280::pressure_Pa_to_absolute_altitude_cm(int32_t pressure_Pa)
+{
+    // This is a very rough estimate (as seen on wiki, weather.gov, adafruit, etc.)
+    // and should be calibrated before flight and probably take into account temperature if accurate altitute is needed.
+    // XXX: This is using floats and powf so it'll be slow.
+    // This formula is for meters, and pa so divide by 100 to get hPa, so 1013.25 becomes 101325, add .0 to signify float
+    float altitude = 443307.694 * (1 - powf(pressure_Pa / 101325.0, 0.190284));
+    return altitude * 100;
+}
+
+float bmp280::cm_to_feet(int32_t altitude_cm)
+{
+    return altitude_cm * .0328084;
 }
 
 void bmp280::forever_test()
