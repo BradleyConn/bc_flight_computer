@@ -37,6 +37,7 @@ add_executable(main
 
     src/tests/characterize_servo_test.cpp
     src/tests/orientation_test.cpp
+    src/tests/chute_ejection_test.cpp
 
     libs/Orientation/Quaternion/Quaternion.cpp
     libs/Orientation/Orientation/Orientation.cpp
@@ -59,6 +60,8 @@ target_compile_options(main PRIVATE -Wall)
 
 # Add pico_stdlib library which aggregates commonly used features
 target_link_libraries(main pico_stdlib hardware_pwm hardware_spi hardware_flash)
+
+pico_enable_stdio_usb(main 1)
 
 # create map/bin/hex/uf2 file in addition to ELF.
 pico_add_extra_outputs(main)
