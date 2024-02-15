@@ -10,12 +10,15 @@
 #include "system/inc/time_keeper.h"
 #include "tests/characterize_servo_test.h"
 #include "tests/orientation_test.h"
+#include "tests/chute_ejection_test.h"
 #include <stdio.h>
 
 int main()
 {
+    chute_ejection_test();
     //characterize_servo_test();
     orientation_test2();
+    #if 0
     setup_default_uart();
     printf("Hello, world! - This is Enos your flight computer speaking!\n");
     auto timeKeeperStartOfWorld = TimeKeeper();
@@ -65,7 +68,7 @@ int main()
 
     puts("Init bmp280!");
     bmp280.init();
-    bmp280.calculate_baseline_pressure_and_altitude_cm();
+    //bmp280.calculate_baseline_pressure_and_altitude_cm();
     //bmp280.forever_test();
     puts("Init bmi088!");
     bmi088.init();
@@ -182,4 +185,5 @@ int main()
         //servo_E.set_angle_centi_degrees(-9000 + (loopcount%3) * 9000);
         //buzzer.set_frequency_hz((loopcount % 50) * 100);
     }
+    #endif
 }

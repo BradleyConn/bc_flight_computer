@@ -61,6 +61,8 @@ void bmp280::init()
     // 11 - normal mode
     write_register(0xF4, 0x57);
     write_register(0xF5, 0x00); // Set standby time to 0.5ms (smallest) and IIR filter to 0, and 4-wire SPI mode
+    //Let the registers take
+    sleep_ms(100);
 }
 
 void bmp280::calculate_baseline_pressure_and_altitude_cm()
@@ -219,8 +221,8 @@ int32_t bmp280::pressure_Pa_to_absolute_altitude_cm(int32_t pressure_Pa)
     // and should be calibrated before flight and probably take into account temperature if accurate altitute is needed.
     // XXX: This is using floats and powf so it'll be slow.
     // This formula is for meters, and pa so divide by 100 to get hPa, so 1013.25 becomes 101325, add .0 to signify float
-    float altitude = 443307.694 * (1 - powf(pressure_Pa / 101325.0, 0.190284));
-    return altitude * 100;
+    float altitude_m = 44330.7694 * (1 - powf(pressure_Pa / 101325.0, 0.190284));
+    return altitude_m * 100;
 }
 
 float bmp280::cm_to_feet(int32_t altitude_cm)
