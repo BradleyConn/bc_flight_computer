@@ -276,13 +276,13 @@ Orientation orientation;
 
 void helper(float yaw_f, float pitch_f, float roll_f)
 {
-    printf("Feed to orientation ------> yaw_f %f pitch_f %f roll_f %f\n", yaw_f, pitch_f, roll_f);
+    //printf("Feed to orientation ------> yaw_f %f pitch_f %f roll_f %f\n", yaw_f, pitch_f, roll_f);
     orientation.update(yaw_f * DEG_TO_RAD, pitch_f * DEG_TO_RAD, roll_f * DEG_TO_RAD,
                        1.0); // '* DEG_TO_RAD' after all gyro functions if they return degrees/sec
     auto oriMeasure = orientation.toEuler();
 
-    printf("Return back EULER =========================================================== YAW: %f, PITCH: %f, ROLL: %f\n", oriMeasure.yaw * RAD_TO_DEG,
-           oriMeasure.pitch * RAD_TO_DEG, oriMeasure.roll * RAD_TO_DEG);
+    //printf("Return back EULER =========================================================== YAW: %f, PITCH: %f, ROLL: %f\n", oriMeasure.yaw * RAD_TO_DEG,
+    //       oriMeasure.pitch * RAD_TO_DEG, oriMeasure.roll * RAD_TO_DEG);
 }
 
 void orientation_test2()
@@ -290,24 +290,319 @@ void orientation_test2()
     setup_default_uart();
 
     puts("\n\nNew:");
-    helper(75, 0, 0);
-    helper(0, 45, 0);
-    //helper(45, 0, 0);
+    //helper(75, 0, 0);
+    //helper(0, 45, 0);
+    helper(245, 138, 350);
+    //helper(15, 0, 0);
+    //helper(0, 0, -15*1);
 
     auto oriMeasure = orientation.toEuler();
 
     helper(0, 0, 0);
 
-    auto yaw = oriMeasure.yaw;
-    auto pitch = oriMeasure.pitch;
-    auto roll = oriMeasure.roll;
-    auto mag = acos(cos(yaw) * cos(pitch));
-    printf("yaw = %f, pitch = %f, roll = %f\n", yaw * RAD_TO_DEG, pitch * RAD_TO_DEG, roll * RAD_TO_DEG);
-    printf("mag = %f\n", mag * RAD_TO_DEG);
-    auto rotation_offset = acos(-cos(mag)/sin(mag)*cos((M_PI/2)-pitch)/sin((M_PI/2)-pitch));
-    printf("rotation_offset = %f\n", rotation_offset * RAD_TO_DEG);
-    helper(0, 0, - rotation_offset * RAD_TO_DEG);
-    helper(0, mag * RAD_TO_DEG, 0);
+    orientation.reset();
+
+    int step = 1;
+    for (int i = 0; i <= 360; i += step) {
+        for (int j = 0; j <= 360; j += step) {
+            for (int k = 0; k <= 360; k += step) {
+                orientation.reset();
+                printf("i = %d, j = %d, k = %d\n", i, j, k);
+
+                helper((float)i + .01, (float)j + .01, (float)k + .01);
+
+                //helper((float)i+.01, 0, 0); //(float)k);
+                //helper (0,(float)j+.01,0);
+                oriMeasure = orientation.toEuler();
+                auto yaw = oriMeasure.yaw;
+                auto pitch = oriMeasure.pitch;
+                auto roll = oriMeasure.roll;
+                auto mag = acos(cos(yaw) * cos(pitch));
+                //printf("yaw = %f, pitch = %f, roll = %f\n", yaw * RAD_TO_DEG, pitch * RAD_TO_DEG, roll * RAD_TO_DEG);
+                //printf("mag = %f\n", mag * RAD_TO_DEG);
+                auto rotation_offset = 0.0;
+#if 0
+            auto sin_mag = sin(mag);
+            auto sin_halfpi_minus_pitch = sin((M_PI / 2) - pitch);
+
+            //print out each step 
+            printf("sin_mag = %f, sin_halfpi_minus_pitch = %f\n", sin_mag, sin_halfpi_minus_pitch);
+            printf("cos(mag) = %f, cos((M_PI / 2) - pitch) = %f\n", cos(mag), cos((M_PI / 2) - pitch));
+            printf("arccos input = %f\n", -cos(mag) / sin_mag * cos((M_PI / 2) - pitch) / sin_halfpi_minus_pitch);
+            if (sin_mag != 0 && sin_halfpi_minus_pitch != 0) {
+                auto rotation_offset = acos(-cos(mag) / sin_mag * cos((M_PI / 2) - pitch) / sin_halfpi_minus_pitch);
+                // check that the float is in range. If not set it to 0.
+                if (isnan(rotation_offset) || isinf(rotation_offset)) {
+                    printf("Got a NaN or Inf\n");
+                    rotation_offset = 0;
+                }
+            } else {
+                printf("Avoid div by zero!\n");
+                rotation_offset = 0;
+            }
+
+            printf("rotation_offset = %f\n", rotation_offset * RAD_TO_DEG);
+            auto full_rotation_offset = rotation_offset + roll;
+            printf("full_rotation_offset = %f\n", full_rotation_offset * RAD_TO_DEG);
+            //helper(0, 0, - full_rotation_offset * RAD_TO_DEG);
+            //helper(0, mag * RAD_TO_DEG, 0);
+#endif
+
+#if 1
+                // The new x,y,z coordinate methon
+
+                //yaw = longitude = phi
+                //pitch = latitude = theta
+                auto cos_phi = cos(yaw);
+                auto sin_phi = sin(yaw);
+                auto cos_theta = cos(pitch);
+                auto sin_theta = sin(pitch);
+
+                auto w_x = 0.0;
+                auto w_y = sin_theta;
+                auto w_z = -cos_theta * sin_phi;
+
+                //printf("w_x = %f, w_y = %f, w_z = %f\n", w_x, w_y, w_z);
+
+                auto n_x = -sin_theta * cos_phi;
+                auto n_y = -sin_theta * sin_phi;
+                auto n_z = cos_theta;
+
+                //printf("n_x = %f, n_y = %f, n_z = %f\n", n_x, n_y, n_z);
+
+                auto e_x = -sin_phi;
+                auto e_y = cos_phi;
+                auto e_z = 0.0;
+
+                //printf("e_x = %f, e_y = %f, e_z = %f\n", e_x, e_y, e_z);
+
+                auto w_dot_n = w_x * n_x + w_y * n_y + w_z * n_z;
+                //printf("w_x *  n_x = %f, w_y * n_y = %f, w_z * n_z = %f\n", w_x * n_x, w_y * n_y, w_z * n_z);
+                auto w_dot_e = w_x * e_x + w_y * e_y + w_z * e_z;
+
+                //printf("w_dot_n = %f, w_dot_e = %f\n", w_dot_n, w_dot_e);
+                rotation_offset = atan2(-w_dot_n, w_dot_e);
+
+                //check if needs 180 degree correction
+                auto p_x = cos_theta * cos_phi;
+                auto p_y = cos_theta * sin_phi;
+                auto p_z = sin_theta;
+                auto q_minus_p_x = 1.0 - p_x;
+                auto q_minus_p_y = 0.0 - p_y;
+                auto q_minus_p_z = 0.0 - p_z;
+
+                auto sin_rotate = sin(rotation_offset);
+                auto cos_rotate = cos(rotation_offset);
+                auto cos_rotate_n_x = cos_rotate * n_x;
+                auto cos_rotate_n_y = cos_rotate * n_y;
+                auto cos_rotate_n_z = cos_rotate * n_z;
+                auto sin_rotate_e_x = sin_rotate * e_x;
+                auto sin_rotate_e_y = sin_rotate * e_y;
+                auto sin_rotate_e_z = sin_rotate * e_z;
+                auto v_x = cos_rotate_n_x + sin_rotate_e_x;
+                auto v_y = cos_rotate_n_y + sin_rotate_e_y;
+                auto v_z = cos_rotate_n_z + sin_rotate_e_z;
+
+                auto dot_product = v_x * q_minus_p_x + v_y * q_minus_p_y + v_z * q_minus_p_z;
+                if (dot_product < 0.0) {
+                    if (rotation_offset > 0.0) {
+                        rotation_offset -= M_PI;
+                    } else {
+                        rotation_offset += M_PI;
+                    }
+                }
+#endif
+
+                //printf("rotation_offset = %f\n", rotation_offset * RAD_TO_DEG);
+                auto full_rotation_offset = rotation_offset - roll;
+                //printf("full_rotation_offset = %f\n", full_rotation_offset * RAD_TO_DEG);
+                auto oriBackup = orientation;
+
+#if 0
+            helper(0, 0, full_rotation_offset * RAD_TO_DEG);
+            helper(0, mag * RAD_TO_DEG, 0);
+
+            oriMeasure = orientation.toEuler();
+            auto yaw_deg_check = oriMeasure.yaw * RAD_TO_DEG;
+            auto pitch_deg_check = oriMeasure.pitch * RAD_TO_DEG;
+
+            if (yaw_deg_check > 2.5 || yaw_deg_check < -2.5 || pitch_deg_check > 2.5 || pitch_deg_check < -2.5) {
+                printf("Try fix!\n");
+                orientation = oriBackup;
+                rotation_offset = rotation_offset + M_PI;
+                printf("rotation_offset = %f\n", rotation_offset * RAD_TO_DEG);
+                full_rotation_offset = rotation_offset; //+ roll;
+                printf("full_rotation_offset = %f\n", full_rotation_offset * RAD_TO_DEG);
+                helper(0, 0, full_rotation_offset * RAD_TO_DEG);
+                helper(0, mag * RAD_TO_DEG, 0);
+                oriMeasure = orientation.toEuler();
+                yaw_deg_check = oriMeasure.yaw * RAD_TO_DEG;
+                pitch_deg_check = oriMeasure.pitch * RAD_TO_DEG;
+                if (yaw_deg_check > 1 || yaw_deg_check < -1 || pitch_deg_check > 1 || pitch_deg_check < -1) {
+                    printf("ERROR: oriMeasure.yaw = %f, oriMeasure.pitch = %f, oriMeasure.roll = %f\n", oriMeasure.yaw * RAD_TO_DEG,
+                           oriMeasure.pitch * RAD_TO_DEG, oriMeasure.roll * RAD_TO_DEG);
+                    while (1)
+                        ;
+                } else {
+                    printf("Fixed!\n");
+                    sleep_ms(1000);
+                }
+            }
+#endif
+#if 1
+                auto yaw_contribution = mag * sin(full_rotation_offset);
+                //printf("yaw_contribution = %f\n", yaw_contribution * RAD_TO_DEG);
+                auto pitch_contribution = mag * cos(full_rotation_offset);
+                //printf("pitch_contribution = %f\n", pitch_contribution * RAD_TO_DEG);
+                helper(yaw_contribution * RAD_TO_DEG, pitch_contribution * RAD_TO_DEG, 0);
+
+                oriMeasure = orientation.toEuler();
+                auto yaw_deg_check = oriMeasure.yaw * RAD_TO_DEG;
+                auto pitch_deg_check = oriMeasure.pitch * RAD_TO_DEG;
+
+                if (yaw_deg_check > .5 || yaw_deg_check < -.5 || pitch_deg_check > .5 || pitch_deg_check < -.5) {
+                    printf("Try fix!\n");
+                    orientation = oriBackup;
+                    rotation_offset = rotation_offset + M_PI;
+                    printf("rotation_offset = %f\n", rotation_offset * RAD_TO_DEG);
+                    full_rotation_offset = rotation_offset; //+ roll;
+                    printf("full_rotation_offset = %f\n", full_rotation_offset * RAD_TO_DEG);
+                    helper(0, 0, full_rotation_offset * RAD_TO_DEG);
+                    helper(0, mag * RAD_TO_DEG, 0);
+                    oriMeasure = orientation.toEuler();
+                    yaw_deg_check = oriMeasure.yaw * RAD_TO_DEG;
+                    pitch_deg_check = oriMeasure.pitch * RAD_TO_DEG;
+                    if (yaw_deg_check > .5 || yaw_deg_check < .5 || pitch_deg_check > .5 || pitch_deg_check < -.5) {
+                        printf("ERROR: oriMeasure.yaw = %f, oriMeasure.pitch = %f, oriMeasure.roll = %f\n", oriMeasure.yaw * RAD_TO_DEG,
+                               oriMeasure.pitch * RAD_TO_DEG, oriMeasure.roll * RAD_TO_DEG);
+                        while (1)
+                            ;
+                    } else {
+                        printf("Fixed!\n");
+                        sleep_ms(1000);
+                    }
+                }
+#endif
+#if 0
+            // Mag would be sent to the PID controller and the returned torque would be sent to the angle calculator and the angle would be used for the next part but use mag instead.
+            // So the mag is known. Now calculate the contribution from each of the rocket axes to get back to the origin.
+            // The rotation calculation assumes pitch is used to return to the origin!
+            float yaw_sign = -1.0;
+            float pitch_sign = -1.0;
+            auto yaw_deg = yaw * RAD_TO_DEG;
+            auto pitch_deg = pitch * RAD_TO_DEG;
+            // check all 8 quadrants
+            // yaw goes += 0 to 180, pitch goes += 0 to 90
+            // so check pitch 0 to 90, and 0 to -90
+            // and check yaw 0 to 90, 90 to 180, 0 to -90, -90 to -180
+            if (pitch_deg >= 0.0) {
+                // 0 to 90
+                if (yaw_deg >= 0.0 && yaw_deg <= 90.0) {
+                    // 1st quadrant
+                    yaw_sign = -1.0;
+                    pitch_sign = -1.0;
+                    printf("1st quadrant\n");
+                }
+                // 90 to 180
+                else if (yaw_deg > 90.0 && yaw_deg <= 180.0) {
+                    // 2nd quadrant
+                    yaw_sign = 1.0;
+                    pitch_sign = -1.0;
+                    printf("2nd quadrant\n");
+                }
+                // 0 to -90
+                else if (yaw_deg <= 0.0 && yaw_deg > -90.0) {
+                    // 3rd quadrant
+                    yaw_sign = -1.0;
+                    pitch_sign = 1.0;
+                    printf("3rd quadrant\n");
+                }
+                // -90 to -180
+                else if (yaw_deg < -90.0) {
+                    // 4th quadrant
+                    yaw_sign = 1.0;
+                    pitch_sign = 1.0;
+                    printf("4th quadrant\n");
+                }
+
+                // pitch is negative
+                else {
+                    // 0 to 90
+                    if (yaw_deg >= 0.0 && yaw_deg <= 90.0) {
+                        // 5th quadrant
+                        yaw_sign = -1.0;
+                        pitch_sign = -1.0;
+                        printf("5th quadrant\n");
+                    }
+                    // 90 to 180
+                    else if (yaw_deg > 90.0 && yaw_deg <= 180.0) {
+                        // 6th quadrant
+                        yaw_sign = 1.0;
+                        pitch_sign = -1.0;
+                        printf("6th quadrant\n");
+                    }
+                    // 0 to -90
+                    else if (yaw_deg <= 0.0 && yaw_deg > -90.0) {
+                        // 7th quadrant
+                        yaw_sign = -1.0;
+                        pitch_sign = 1.0;
+                        printf("7th quadrant\n");
+                    }
+                    // -90 to -180
+                    else if (yaw_deg < -90.0) {
+                        // 8th quadrant
+                        yaw_sign = 1.0;
+                        pitch_sign = 1.0;
+                        printf("8th quadrant\n");
+                    }
+
+                    else {
+                        printf("ERROR: yaw_deg = %f, pitch_deg = %f\n", yaw_deg, pitch_deg);
+                        while (1)
+                            ;
+                    }
+                }
+            }
+
+            auto yaw_contribution = yaw_sign * mag * sin(full_rotation_offset);
+            printf("yaw_contribution = %f\n", yaw_contribution * RAD_TO_DEG);
+            auto pitch_contribution = pitch_sign * mag * cos(full_rotation_offset);
+            printf("pitch_contribution = %f\n", pitch_contribution * RAD_TO_DEG);
+            auto oriBackup = orientation;
+            helper(yaw_contribution * RAD_TO_DEG, pitch_contribution * RAD_TO_DEG, 0);
+
+            oriMeasure = orientation.toEuler();
+            auto yaw_deg_check = oriMeasure.yaw * RAD_TO_DEG;
+            auto pitch_deg_check = oriMeasure.pitch * RAD_TO_DEG;
+            if (yaw_deg_check > 2.5 || yaw_deg_check < -2.5 || pitch_deg_check > 2.5 || pitch_deg_check < -2.5) {
+                printf("Try fix!\n");
+                orientation = oriBackup;
+                rotation_offset = rotation_offset + M_PI;
+                printf("rotation_offset = %f\n", rotation_offset * RAD_TO_DEG);
+                full_rotation_offset = rotation_offset + roll;
+                printf("full_rotation_offset = %f\n", full_rotation_offset * RAD_TO_DEG);
+                yaw_contribution = yaw_sign * mag * sin(full_rotation_offset);
+                printf("yaw_contribution = %f\n", yaw_contribution * RAD_TO_DEG);
+                pitch_contribution = pitch_sign * mag * cos(full_rotation_offset);
+                printf("pitch_contribution = %f\n", pitch_contribution * RAD_TO_DEG);
+                helper(yaw_contribution * RAD_TO_DEG, pitch_contribution * RAD_TO_DEG, 0);
+                oriMeasure = orientation.toEuler();
+                yaw_deg_check = oriMeasure.yaw * RAD_TO_DEG;
+                pitch_deg_check = oriMeasure.pitch * RAD_TO_DEG;
+                if (yaw_deg_check > 1 || yaw_deg_check < -1 || pitch_deg_check > 1 || pitch_deg_check < -1) {
+                    printf("ERROR: oriMeasure.yaw = %f, oriMeasure.pitch = %f, oriMeasure.roll = %f\n", oriMeasure.yaw * RAD_TO_DEG,
+                           oriMeasure.pitch * RAD_TO_DEG, oriMeasure.roll * RAD_TO_DEG);
+                    while (1)
+                        ;
+                } else {
+                    printf("Fixed!\n");
+                    sleep_ms(1000);
+                }
+            }
+            //}
+#endif
+            }
+        }
 
 #if 0
     for (int i = 0; i < 636; i++) {
@@ -363,7 +658,8 @@ void orientation_test2()
     helper(0, 0, 89);
     helper(0, 0, 89);
 #endif
-
+    }
+    printf("Done\n");
     while (1)
         ;
 }
