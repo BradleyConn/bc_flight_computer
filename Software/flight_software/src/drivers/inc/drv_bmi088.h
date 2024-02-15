@@ -125,9 +125,7 @@ private:
     uint _gyro_int_pin;
 
     // Gyro calibration
-    int32_t _gyro_x_bias = 0;
-    int32_t _gyro_y_bias = 0;
-    int32_t _gyro_z_bias = 0;
+    GyroDataConverted _gyro_calibration_values;
 
 }; // class bmi088
 }; // namespace drv

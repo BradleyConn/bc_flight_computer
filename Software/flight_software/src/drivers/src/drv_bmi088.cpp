@@ -187,18 +187,14 @@ void bmi088::run_gyro_calibration()
         gyroYOffsetSum += bmi088ConvertedData.gyro_data_converted.y_milli_degrees_per_sec;
         gyroZOffsetSum += bmi088ConvertedData.gyro_data_converted.z_milli_degrees_per_sec;
     }
-    _gyro_x_bias = gyroXOffsetSum / 10000;
-    _gyro_y_bias = gyroYOffsetSum / 10000;
-    _gyro_z_bias = gyroZOffsetSum / 10000;
+    _gyro_calibration_values.x_milli_degrees_per_sec = gyroXOffsetSum / 10000;
+    _gyro_calibration_values.y_milli_degrees_per_sec = gyroYOffsetSum / 10000;
+    _gyro_calibration_values.z_milli_degrees_per_sec = gyroZOffsetSum / 10000;
 }
 
 GyroDataConverted bmi088::get_gyro_calibration_values()
 {
-    GyroDataConverted gyroDataConverted;
-    gyroDataConverted.x_milli_degrees_per_sec = _gyro_x_bias;
-    gyroDataConverted.y_milli_degrees_per_sec = _gyro_y_bias;
-    gyroDataConverted.z_milli_degrees_per_sec = _gyro_z_bias;
-    return gyroDataConverted;
+    return _gyro_calibration_values;
 }
 
 bool bmi088::accel_check_interrupt_data_ready()
@@ -332,9 +328,9 @@ GyroDataConverted bmi088::gyro_convert_data(GyroDataRaw gyro_data_raw)
     gyroDataConverted.x_milli_degrees_per_sec = (gyro_data_raw.x * 610) / 10;
     gyroDataConverted.y_milli_degrees_per_sec = (gyro_data_raw.y * 610) / 10;
     gyroDataConverted.z_milli_degrees_per_sec = (gyro_data_raw.z * 610) / 10;
-    gyroDataConverted.x_milli_degrees_per_sec -= _gyro_x_bias;
-    gyroDataConverted.y_milli_degrees_per_sec -= _gyro_y_bias;
-    gyroDataConverted.z_milli_degrees_per_sec -= _gyro_z_bias;
+    gyroDataConverted.x_milli_degrees_per_sec -= _gyro_calibration_values.x_milli_degrees_per_sec;
+    gyroDataConverted.y_milli_degrees_per_sec -= _gyro_calibration_values.y_milli_degrees_per_sec;
+    gyroDataConverted.z_milli_degrees_per_sec -= _gyro_calibration_values.z_milli_degrees_per_sec;
     return gyroDataConverted;
 }
 
