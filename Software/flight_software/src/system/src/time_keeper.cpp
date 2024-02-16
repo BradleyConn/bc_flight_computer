@@ -2,7 +2,6 @@
 #include "hardware/timer.h"
 #include <stdio.h>
 
-
 TimeKeeper::TimeKeeper()
 {
     valid = false;
@@ -23,6 +22,16 @@ void TimeKeeper::mark()
 uint64_t TimeKeeper::deltaTime_us() const
 {
     return time_us_64() - markTime;
+}
+
+uint64_t TimeKeeper::deltaTime_ms() const
+{
+    return deltaTime_us() / 1000;
+}
+
+uint64_t TimeKeeper::deltaTime_s() const
+{
+    return deltaTime_us() / 1000000;
 }
 
 void TimeKeeper::printTimeuS() const

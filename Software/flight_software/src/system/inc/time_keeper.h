@@ -10,6 +10,8 @@ public:
     bool isValid() const;
     void mark();
     uint64_t deltaTime_us() const;
+    uint64_t deltaTime_ms() const;
+    uint64_t deltaTime_s() const;
     void printTimeuS() const;
     void printTimeMS() const;
     void printTimeS() const;
