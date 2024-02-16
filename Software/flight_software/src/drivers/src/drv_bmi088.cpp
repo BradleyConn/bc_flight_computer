@@ -19,6 +19,10 @@ bmi088::bmi088(uint sclk, uint miso, uint mosi, uint accel_cs, uint gyro_cs, spi
     , _accel_int_pin(accel_int_pin)
     , _gyro_int_pin(gyro_int_pin)
 {
+    _gyro_calibration_values.x_milli_degrees_per_sec = 0;
+    _gyro_calibration_values.y_milli_degrees_per_sec = 0;
+    _gyro_calibration_values.z_milli_degrees_per_sec = 0;
+
     if (spi_module == spi_module_0) {
         _spi_inst = spi0;
     } else if (spi_module == spi_module_1) {
@@ -331,6 +335,7 @@ GyroDataConverted bmi088::gyro_convert_data(GyroDataRaw gyro_data_raw)
     gyroDataConverted.x_milli_degrees_per_sec -= _gyro_calibration_values.x_milli_degrees_per_sec;
     gyroDataConverted.y_milli_degrees_per_sec -= _gyro_calibration_values.y_milli_degrees_per_sec;
     gyroDataConverted.z_milli_degrees_per_sec -= _gyro_calibration_values.z_milli_degrees_per_sec;
+
     return gyroDataConverted;
 }
 
