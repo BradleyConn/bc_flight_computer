@@ -29,7 +29,6 @@ add_executable(main
     src/drivers/src/drv_flash.cpp
     src/drivers/src/drv_gpio.cpp
 
-    src/system/src/torque_to_tvc_angle.cpp
     src/system/src/time_keeper.cpp
     src/system/src/telemetry_container.cpp
     src/system/src/thrust_curves/thrust_curve_E12.cpp
@@ -42,11 +41,19 @@ add_executable(main
     libs/Orientation/Quaternion/Quaternion.cpp
     libs/Orientation/Orientation/Orientation.cpp
 
+    src/system/src/controls/quaternion_orientation.cpp
+    src/system/src/controls/torque_to_tvc_angle.cpp
+    src/system/src/controls/euler_angle_error_calculator.cpp
+    src/system/src/controls/tvc_angle_to_servo_setpoint.cpp
+    src/system/src/control_loop.cpp
+
+
 )
 target_include_directories(main
  PRIVATE
   src/drivers/inc/
   src/system/inc/
+  libs/
   )
 add_compile_options(-Wall
         -Wextra
