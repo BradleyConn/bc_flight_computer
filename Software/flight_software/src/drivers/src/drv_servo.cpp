@@ -1,6 +1,6 @@
 #include "../inc/drv_servo.h"
-#include "hardware/pwm.h"
 #include "drv_servo.h"
+#include "hardware/pwm.h"
 #include "stdio.h"
 
 namespace drv
@@ -46,10 +46,7 @@ servo::~servo()
 
 void servo::set_angle_centi_degrees(int64_t centi_degrees)
 {
-        printf("set_angle_centi_degrees before (%lld) = %lld\n", centi_degrees, centi_degrees);
-
-    centi_degrees = centi_degrees + (_offset_milli_degree/10);
-    printf("set_angle_centi_degrees after (%lld) = %lld\n", centi_degrees, centi_degrees);
+    centi_degrees = centi_degrees + (_offset_milli_degree / 10);
     // TODO: Maybe error check the input?
     // -90 is 125,000 is 1,000 us
     //   0 is 187,500 is 1,500 us
@@ -74,18 +71,16 @@ void servo::set_angle_centi_degrees(int64_t centi_degrees)
     // For better resolution use centi-degree then div by 100
     int64_t centi_degree_steps = step_per_degree * centi_degrees;
     int64_t angle_steps = midpoint_offset + (centi_degree_steps / 100);
-    printf("set_angle_centi_degrees(%lld) = %lld\n", centi_degrees, angle_steps);
-        pwm_set_chan_level(_slice_num, _channel, angle_steps / 64);
-    }
+    pwm_set_chan_level(_slice_num, _channel, angle_steps / 64);
+}
 
-    void servo::set_angle_milli_degrees(int64_t milli_degree)
-    {
-        printf("set_angle_milli_degrees(%lld)\n", milli_degree);
-        set_angle_centi_degrees(milli_degree / 10);
-    }
+void servo::set_angle_milli_degrees(int64_t milli_degree)
+{
+    set_angle_centi_degrees(milli_degree / 10);
+}
 
-    void servo::turn_off()
-    {
-        pwm_set_chan_level(_slice_num, _channel, 0);
-    }
-    } //namespace drv
+void servo::turn_off()
+{
+    pwm_set_chan_level(_slice_num, _channel, 0);
+}
+} //namespace drv
