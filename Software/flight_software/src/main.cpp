@@ -16,7 +16,7 @@
 
 int main()
 {
-//chute_ejection_test();
+    //chute_ejection_test();
 //characterize_servo_test();
 //orientation_test2();
 #if 1
@@ -209,6 +209,96 @@ int main()
         //sleep_ms(500);
         //servo_E.set_angle_centi_degrees(-9000 + (loopcount%3) * 9000);
         //buzzer.set_frequency_hz((loopcount % 50) * 100);
+
+//-----------------------------------------------------------------------------------------------------
+        enum State {
+            INIT,
+            PAD_IDLE,
+            LAUNCH_DETECTED,
+            MOTOR_BURNOUT_PRE_APOGEE,
+            APOGEE_DETECTED,
+            DESCENT,
+            LANDING,
+            RECOVERY,
+        };
+
+        State currentState = INIT;
+
+        while (1) {
+            switch (currentState) {
+                case INIT:
+                    // Initialization code goes here
+
+                    // calibrate the sensors
+                    bmi088.init();
+                    bmi088.run_gyro_calibration();
+                    bmp280.init();
+                    bmp280.calculate_baseline_pressure_and_altitude_cm();
+
+                    // set the initial settings
+                    buzzer.set_frequency_hz(2700);
+                    buzzer.set_volume_percentage(0);
+                    led_r.set_pwm(0);
+                    led_g.set_pwm(0);
+                    servo_E.set_angle_milli_degrees(0);
+                    servo_D.set_angle_milli_degrees(0);
+                    servo_C.set_angle_milli_degrees(0);
+                    servo_B.set_angle_milli_degrees(0);
+                    servo_A.set_angle_milli_degrees(0);
+                    buzzer.set_volume_percentage(0);
+
+                    //TODO: set the initial control loop settings
+                    //control_loop.set_thrust_curve(&thrust_curve);
+                    //control_loop.set_servo(servo_A);
+                    //control_loop.set_servo(servo_C);
+                    //control_loop.set_servo(servo_E);
+                    //control_loop.set_servo(servo_D);
+                    //control_loop.set_servo(servo_B);
+                    //control_loop.actuate_servos();
+
+                    //buzzer.chirp(1000, 100, 10);
+
+                    currentState = PAD_IDLE;
+                    break;
+                case PAD_IDLE:
+                    // PAD_IDLE state code goes here
+
+                    currentState = LAUNCH_DETECTED;
+                    break;
+                case LAUNCH_DETECTED:
+                    // LAUNCH_DETECTED state code goes here
+
+                    currentState = MOTOR_BURNOUT_PRE_APOGEE;
+                    break;
+                case MOTOR_BURNOUT_PRE_APOGEE:
+                    // MOTOR_BURNOUT_PRE_APOGEE state code goes here
+
+                    currentState = APOGEE_DETECTED;
+                    break;
+                case APOGEE_DETECTED:
+                    // APOGEE_DETECTED state code goes here
+
+                    currentState = DESCENT;
+                    break;
+                case DESCENT:
+                    // DESCENT state code goes here
+
+                    currentState = LANDING;
+                    break;
+                case LANDING:
+                    // LANDING state code goes here
+
+                    currentState = RECOVERY;
+                    break;
+                case RECOVERY:
+                    // RECOVERY state code goes here
+
+                    // Go back to the initial state
+                    currentState = INIT;
+                    break;
+            }
+        }
     }
+
 #endif
 }
