@@ -210,9 +210,10 @@ int main()
         //servo_E.set_angle_centi_degrees(-9000 + (loopcount%3) * 9000);
         //buzzer.set_frequency_hz((loopcount % 50) * 100);
 
-//-----------------------------------------------------------------------------------------------------
+        //-----------------------------------------------------------------------------------------------------
         enum State {
             INIT,
+            CALIBRATION,
             PAD_IDLE,
             LAUNCH_DETECTED,
             MOTOR_BURNOUT_PRE_APOGEE,
@@ -227,13 +228,11 @@ int main()
         while (1) {
             switch (currentState) {
                 case INIT:
-                    // Initialization code goes here
+                    // INIT state code goes here
 
                     // calibrate the sensors
                     bmi088.init();
-                    bmi088.run_gyro_calibration();
                     bmp280.init();
-                    bmp280.calculate_baseline_pressure_and_altitude_cm();
 
                     // set the initial settings
                     buzzer.set_frequency_hz(2700);
@@ -247,19 +246,23 @@ int main()
                     servo_A.set_angle_milli_degrees(0);
                     buzzer.set_volume_percentage(0);
 
-                    //TODO: set the initial control loop settings
-                    //control_loop.set_thrust_curve(&thrust_curve);
-                    //control_loop.set_servo(servo_A);
-                    //control_loop.set_servo(servo_C);
-                    //control_loop.set_servo(servo_E);
-                    //control_loop.set_servo(servo_D);
-                    //control_loop.set_servo(servo_B);
-                    //control_loop.actuate_servos();
+                    // Give some time for the operator to get the rocket where it needs to be after it was plugged
+                    buzzer.play_blocking(drv::buzzer::Chime::BeepSlow, 3000, 2);
+                    buzzer.play_blocking(drv::buzzer::Chime::BeepMedium, 3000, 2);
+                    buzzer.play_blocking(drv::buzzer::Chime::BeepFast, 3000, 2);
 
-                    //buzzer.chirp(1000, 100, 10);
+                    currentState = CALIBRATION;
+                    break;
+                case CALIBRATION:
+                    // Rocket should be seated and settled now
+                    buzzer.set_volume_percentage(100);
+
+                    // calibrate the sensors
+                    bmi088.run_gyro_calibration();
+                    bmp280.calculate_baseline_pressure_and_altitude_cm();
+                    buzzer.stop();
 
                     currentState = PAD_IDLE;
-                    break;
                 case PAD_IDLE:
                     // PAD_IDLE state code goes here
 

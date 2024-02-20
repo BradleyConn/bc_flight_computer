@@ -45,4 +45,105 @@ void buzzer::set_volume_percentage(uint8_t volume_percent)
     pwm_set_chan_level(_slice_num, _channel, level);
 }
 
+void buzzer::stop()
+{
+    set_volume_percentage(0);
+}
+
+void buzzer::play_blocking(Chime chime, uint32_t duration_ms, uint8_t volume_percent)
+{
+    auto num_loops = 0;
+    auto remainder = 0;
+    switch (chime) {
+        case Chime::BeepFast:
+            // We'll say fast is 500 ms
+            // calculate the number of loops
+            num_loops = duration_ms / 500;
+            for (auto i = 0; i < num_loops; i++) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(250);
+                set_volume_percentage(0);
+                sleep_ms(250);
+            }
+            remainder = duration_ms % 500;
+            if (remainder > 250) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(250);
+                set_volume_percentage(0);
+                sleep_ms(remainder - 250);
+            } else {
+                set_volume_percentage(volume_percent);
+                sleep_ms(remainder);
+                set_volume_percentage(0);
+            }
+
+            break;
+        case Chime::BeepMedium:
+            // We'll say medium is 1000 ms
+            num_loops = duration_ms / 1000;
+            for (auto i = 0; i < num_loops; i++) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(500);
+                set_volume_percentage(0);
+                sleep_ms(500);
+            }
+            remainder = duration_ms % 1000;
+            if (remainder > 500) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(500);
+                set_volume_percentage(0);
+                sleep_ms(remainder - 500);
+            } else {
+                set_volume_percentage(volume_percent);
+                sleep_ms(remainder);
+                set_volume_percentage(0);
+            }
+            break;
+        case Chime::BeepSlow:
+            // We'll say slow is 2000 ms
+            num_loops = duration_ms / 2000;
+            for (auto i = 0; i < num_loops; i++) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(1000);
+                set_volume_percentage(0);
+                sleep_ms(1000);
+            }
+            remainder = duration_ms % 2000;
+            if (remainder > 1000) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(1000);
+                set_volume_percentage(0);
+                sleep_ms(remainder - 1000);
+            } else {
+                set_volume_percentage(volume_percent);
+                sleep_ms(remainder);
+                set_volume_percentage(0);
+            }
+            break;
+        case Chime::Chirp:
+            // We'll say chirp is a 250 ms pulse followed by a 750 ms pause
+            num_loops = duration_ms / 1000;
+            for (auto i = 0; i < num_loops; i++) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(250);
+                set_volume_percentage(0);
+                sleep_ms(750);
+            }
+            remainder = duration_ms % 1000;
+            if (remainder > 250) {
+                set_volume_percentage(volume_percent);
+                sleep_ms(250);
+                set_volume_percentage(0);
+                sleep_ms(remainder - 250);
+            } else {
+                set_volume_percentage(volume_percent);
+                sleep_ms(remainder);
+                set_volume_percentage(0);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
 }; // namespace drv
