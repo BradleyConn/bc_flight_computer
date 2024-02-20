@@ -51,6 +51,15 @@ int chute_ejection_test()
 
     auto max = 0;
 
+    buzzer.set_volume_percentage(3);
+    sleep_ms(3000);
+    servo_E.set_angle_centi_degrees(45 * 1000 / 10);
+    buzzer.set_volume_percentage(3);
+    sleep_ms(2000);
+    servo_E.set_angle_centi_degrees(0 * 1000 / 10);
+    buzzer.set_volume_percentage(0);
+    while(1);
+
 #if 0
     auto altitude_accumulator = 0;
     auto num_loops = 0;
