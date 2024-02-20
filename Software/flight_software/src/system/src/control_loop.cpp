@@ -38,13 +38,13 @@ void ControlLoop::update(bool liftoff_detected, const bmi088DatasetConverted& da
         auto yaw_tvc_angle = _torque_to_tvc_angle.getTvcAngle(yaw_torque_mN, time_since_liftoff_ms);
         auto pitch_tvc_angle = _torque_to_tvc_angle.getTvcAngle(pitch_torque_mN, time_since_liftoff_ms);
 
-        // 5. Convert the TVC angles to servo setpoints
+        // 5. Convert the TVC angles to servo setpoints as the servos are acting as linear actuators. It's not direct drive rotation.
         auto yaw_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(yaw_tvc_angle);
         auto pitch_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(pitch_tvc_angle);
 
         // 6. Convert the angle floats to milliangle integers
-        auto yaw_servo_setpoint_millidegrees = static_cast<int32_t>(yaw_servo_setpoint * 1000);
-        auto pitch_servo_setpoint_millidegrees = static_cast<int32_t>(pitch_servo_setpoint * 1000);
+        auto yaw_servo_setpoint_millidegrees = static_cast<int64_t>(yaw_servo_setpoint * 1000);
+        auto pitch_servo_setpoint_millidegrees = static_cast<int64_t>(pitch_servo_setpoint * 1000);
 
         // 7. Move the servos
         _servo_yaw_Z_axis_servo_A.set_angle_milli_degrees(yaw_servo_setpoint_millidegrees);
