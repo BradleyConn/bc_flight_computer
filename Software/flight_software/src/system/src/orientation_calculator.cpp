@@ -1,20 +1,20 @@
-#include "../../inc/controls/quaternion_orientation.h"
+#include "../inc/orientation_calculator.h"
 #include <stdio.h>
 
 #define DEG_TO_RAD 0.017453292519943295769236907684886
 #define RAD_TO_DEG 57.295779513082320876798154814105
 
-QuaternionOrientation::QuaternionOrientation()
+OrientationCalculator::OrientationCalculator()
 {
     _orientation_inst = Orientation();
 }
 
-QuaternionOrientation::~QuaternionOrientation()
+OrientationCalculator::~OrientationCalculator()
 {
 }
 
 // Orientation lib needs floats and radians
-void QuaternionOrientation::update(const bmi088DatasetConverted& data, float dt)
+void OrientationCalculator::update(const bmi088DatasetConverted& data)
 {
     // The gryo data is in milli degrees per second so convert to degrees per second
     auto x_deg_per_sec = data.gyro_data_converted.x_milli_degrees_per_sec / 1000.0f;
@@ -34,6 +34,8 @@ void QuaternionOrientation::update(const bmi088DatasetConverted& data, float dt)
     gyroMeasure.pitch = -y_rad_per_sec;
     // roll is the x axis, but the sensor is mounted upside down so negate it
     gyroMeasure.roll = -x_rad_per_sec;
+    // Given odr calcuate dt
+    float dt = 1.0f / data.gyro_odr;
     // Update the orientation
     _orientation_inst.update(gyroMeasure, dt);
     _euler = _orientation_inst.toEuler();
@@ -47,9 +49,9 @@ void QuaternionOrientation::update(const bmi088DatasetConverted& data, float dt)
 }
 
 // Orientation lib needs floats
-void QuaternionOrientation::update_gravity(const bmi088DatasetConverted& data, float dt)
+void OrientationCalculator::update_gravity(const bmi088DatasetConverted& data)
 {
-    // alpha should be roughly 0.98
+    // alpha should be roughly 0.02
     // The accelerometer data is in milli g's so convert to g's
     auto x_g = data.accel_data_converted.x_mg / 1000.0f;
     auto y_g = data.accel_data_converted.y_mg / 1000.0f;
@@ -69,7 +71,7 @@ void QuaternionOrientation::update_gravity(const bmi088DatasetConverted& data, f
 
 }
 
-EulerAngles QuaternionOrientation::getEulerYawPitchRollAngles() const
+EulerAngles OrientationCalculator::getEulerYawPitchRollAngles() const
 {
     return _euler;
 }

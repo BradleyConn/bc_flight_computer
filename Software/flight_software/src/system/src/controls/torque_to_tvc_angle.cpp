@@ -12,9 +12,9 @@ TorqueToTvcAngle::~TorqueToTvcAngle()
 {
 }
 
-float TorqueToTvcAngle::getTvcAngle(uint32_t desiredTorque_mN, uint32_t time_ms)
+float TorqueToTvcAngle::getTvcAngle(uint32_t desiredTorque_mN, uint32_t time_under_thrust_ms)
 {
-    auto thrust_mN = thrust_curve->get_thrust_mN(time_ms);
+    auto thrust_mN = thrust_curve->get_thrust_mN(time_under_thrust_ms);
     if (thrust_mN <= 5) {
         return 0;
     }

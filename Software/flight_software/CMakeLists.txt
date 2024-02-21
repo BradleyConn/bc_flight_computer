@@ -33,6 +33,7 @@ add_executable(main
     src/system/src/telemetry_container.cpp
     src/system/src/thrust_curves/thrust_curve_E12.cpp
     src/system/src/thrust_curves/thrust_curve_E9.cpp
+    src/system/src/orientation_calculator.cpp
 
     src/tests/characterize_servo_test.cpp
     src/tests/orientation_test.cpp
@@ -41,7 +42,6 @@ add_executable(main
     libs/Orientation/Quaternion/Quaternion.cpp
     libs/Orientation/Orientation/Orientation.cpp
 
-    src/system/src/controls/quaternion_orientation.cpp
     src/system/src/controls/torque_to_tvc_angle.cpp
     src/system/src/controls/euler_angle_error_calculator.cpp
     src/system/src/controls/tvc_angle_to_servo_setpoint.cpp

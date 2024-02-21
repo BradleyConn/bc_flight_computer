@@ -1,11 +1,18 @@
 #include "control_loop.h"
 
-ControlLoop::ControlLoop(drv::servo& servo_yaw_Z_axis_servo_A, drv::servo& servo_pitch_Y_axis_servo_C)
-    : _yaw_pid(_yaw_pid_kp, _yaw_pid_ki, _yaw_pid_kd)
-    , _pitch_pid(_pitch_pid_kp, _pitch_pid_ki, _pitch_pid_kd)
+ControlLoop::ControlLoop(const OrientationCalculator& orientation, drv::servo& servo_yaw_Z_axis_servo_A, drv::servo& servo_pitch_Y_axis_servo_C,
+                         uint64_t updateRate_us)
+    : _orientation(orientation)
     , _servo_yaw_Z_axis_servo_A(servo_yaw_Z_axis_servo_A)
     , _servo_pitch_Y_axis_servo_C(servo_pitch_Y_axis_servo_C)
-    , _liftoff_time_keeper()
+    , _updateRate_us(updateRate_us)
+    , _time_since_update()
+    , _time_under_thrust()
+    , _yaw_pid(_yaw_pid_kp, _yaw_pid_ki, _yaw_pid_kd)
+    , _pitch_pid(_pitch_pid_kp, _pitch_pid_ki, _pitch_pid_kd)
+    , _torque_to_tvc_angle()
+    , _tvc_angle_to_servo_setpoint()
+    , _abort(false)
 {
 }
 
@@ -13,44 +20,49 @@ ControlLoop::~ControlLoop()
 {
 }
 
-void ControlLoop::update(bool liftoff_detected, const bmi088DatasetConverted& data, float dt)
+void ControlLoop::start()
 {
-    // If this is the first time liftoff has been detected, mark the time
-    if (! _liftoff_detected && liftoff_detected) {
-        _liftoff_time_keeper.mark();
-        _liftoff_detected = true;
+    _time_under_thrust.mark();
+}
+
+void ControlLoop::tryUpdate(const bmi088DatasetConverted& data)
+{
+    if (_time_since_update.deltaTime_us() < _updateRate_us || _abort) {
+        return;
     }
+    float dt_s_f = _time_since_update.deltaTime_us() / 1000000.0f;
 
-    if (_liftoff_detected) {
-        // Get the time right away as these calls will take time
-        auto time_since_liftoff_ms = _liftoff_time_keeper.deltaTime_ms();
+    // 1. Get the rocket body frame yaw and pitch errors
+    auto _angle_errors = convertEulerAnglesToAxisError(_orientation.getEulerYawPitchRollAngles());
 
-        // 1. Update the orientation
-        _orientation.update(data, dt);
-        // 2. Get the rocket body frame yaw and pitch errors
-        _angle_errors = convertEulerAnglesToAxisError(_orientation.getEulerYawPitchRollAngles());
+    // 2. Feed the errors into the PID controllers
+    auto yaw_torque_mN = _yaw_pid.update(_angle_errors.yaw_Z_axis_servo_A_error_degrees, dt_s_f);
+    auto pitch_torque_mN = _pitch_pid.update(_angle_errors.pitch_y_axis_servo_C_error_degrees, dt_s_f);
 
-        // 3. Feed the errors into the PID controllers
-        auto yaw_torque_mN = _yaw_pid.update(_angle_errors.yaw_Z_axis_servo_A_error_degrees, dt);
-        auto pitch_torque_mN = _pitch_pid.update(_angle_errors.pitch_y_axis_servo_C_error_degrees, dt);
+    // 3. Convert the torques to TVC angles
+    auto _time_under_thrust_ms = _time_under_thrust.deltaTime_ms();
+    auto yaw_tvc_angle = _torque_to_tvc_angle.getTvcAngle(yaw_torque_mN, _time_under_thrust_ms);
+    auto pitch_tvc_angle = _torque_to_tvc_angle.getTvcAngle(pitch_torque_mN, _time_under_thrust_ms);
 
-        // 4. Convert the torques to TVC angles
-        auto yaw_tvc_angle = _torque_to_tvc_angle.getTvcAngle(yaw_torque_mN, time_since_liftoff_ms);
-        auto pitch_tvc_angle = _torque_to_tvc_angle.getTvcAngle(pitch_torque_mN, time_since_liftoff_ms);
+    // 4. Convert the TVC angles to servo setpoints as the servos are acting as linear actuators. It's not direct drive rotation.
+    auto yaw_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(yaw_tvc_angle);
+    auto pitch_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(pitch_tvc_angle);
 
-        // 5. Convert the TVC angles to servo setpoints as the servos are acting as linear actuators. It's not direct drive rotation.
-        auto yaw_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(yaw_tvc_angle);
-        auto pitch_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(pitch_tvc_angle);
+    // 5. Convert the angle floats to milliangle integers
+    auto yaw_servo_setpoint_millidegrees = static_cast<int64_t>(yaw_servo_setpoint * 1000);
+    auto pitch_servo_setpoint_millidegrees = static_cast<int64_t>(pitch_servo_setpoint * 1000);
 
-        // 6. Convert the angle floats to milliangle integers
-        auto yaw_servo_setpoint_millidegrees = static_cast<int64_t>(yaw_servo_setpoint * 1000);
-        auto pitch_servo_setpoint_millidegrees = static_cast<int64_t>(pitch_servo_setpoint * 1000);
+    // 6. Move the servos
+    _servo_yaw_Z_axis_servo_A.set_angle_milli_degrees(yaw_servo_setpoint_millidegrees);
+    _servo_pitch_Y_axis_servo_C.set_angle_milli_degrees(pitch_servo_setpoint_millidegrees);
 
-        // 7. Move the servos
-        _servo_yaw_Z_axis_servo_A.set_angle_milli_degrees(yaw_servo_setpoint_millidegrees);
-        _servo_pitch_Y_axis_servo_C.set_angle_milli_degrees(pitch_servo_setpoint_millidegrees);
-    } else {
-        // liftoff not detected, just keep updating the orientation with the gravity vector
-        _orientation.update_gravity(data, dt);
-    }
+    // 7. Update the time since the last update
+    _time_since_update.mark();
+}
+
+void ControlLoop::abort()
+{
+    _abort = true;
+    _servo_yaw_Z_axis_servo_A.set_angle_milli_degrees(0);
+    _servo_pitch_Y_axis_servo_C.set_angle_milli_degrees(0);
 }

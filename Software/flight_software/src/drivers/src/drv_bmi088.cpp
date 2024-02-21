@@ -142,6 +142,7 @@ void bmi088::init()
     // Now configure it
     // Set the ODR 1600 (625 us), no oversampling - 280hz bandwidth
     accel_write_register(0x40, 0xAC);
+    _accel_odr = 1600;
     // Set +-24g
     accel_write_register(0x41, 0x03);
     // Set interrupt pin 1 as output
@@ -160,6 +161,7 @@ void bmi088::init()
     gyro_write_register(0x0F, 0x00);
     // Set the ODR to 2000hz (500us), and bandwidth to 532Hz
     gyro_write_register(0x10, 0x00);
+    _gyro_odr = 2000;
     // Enable new data interrupt to be triggered on new data
     gyro_write_register(0x15, 0x80);
 
@@ -354,6 +356,8 @@ bmi088DatasetConverted bmi088::convert_data(bmi088DatasetRaw bmi088DatasetRaw)
     bmi088DatasetConverted.accel_data_converted = accel_convert_data(bmi088DatasetRaw.accel_data_raw);
     bmi088DatasetConverted.accel_temperature_converted = accel_convert_temperature(bmi088DatasetRaw.accel_temperature_raw);
     bmi088DatasetConverted.gyro_data_converted = gyro_convert_data(bmi088DatasetRaw.gyro_data_raw);
+    bmi088DatasetConverted.accel_odr = _accel_odr;
+    bmi088DatasetConverted.gyro_odr = _gyro_odr;
     return bmi088DatasetConverted;
 }
 
@@ -391,6 +395,44 @@ void bmi088::print_data_converted_floats(bmi088DatasetConverted bmi088_dataset_c
     printf("Gyro X = %.2f deg/s\n", static_cast<float>(bmi088_dataset_converted.gyro_data_converted.x_milli_degrees_per_sec) / 1000.0);
     printf("Gyro Y = %.2f deg/s\n", static_cast<float>(bmi088_dataset_converted.gyro_data_converted.y_milli_degrees_per_sec) / 1000.0);
     printf("Gyro Z = %.2f deg/s\n", static_cast<float>(bmi088_dataset_converted.gyro_data_converted.z_milli_degrees_per_sec) / 1000.0);
+}
+
+bmi088DatasetConverted bmi088::blocking_wait_for_new_gyro_data(uint64_t timeout_us)
+{
+    auto timeout_timer = TimeKeeper();
+    timeout_timer.mark();
+    while (gyro_check_interrupt_data_ready() == false) {
+        //printf("Waiting for gyro data ready\n");
+        if (timeout_timer.deltaTime_ms() > timeout_us) {
+            //printf("Timeout waiting for gyro data ready\n");
+            break;
+        }
+    }
+    //read and clear the interrupt
+    gyro_interrupt_reg_clear();
+
+    bmi088DatasetRaw bmi088RawData = get_data_raw();
+    bmi088DatasetConverted bmi088ConvertedData = convert_data(bmi088RawData);
+    return bmi088ConvertedData;
+}
+
+bmi088DatasetConverted bmi088::blocking_wait_for_new_accel_data(uint64_t timeout_us)
+{
+    auto timeout_timer = TimeKeeper();
+    timeout_timer.mark();
+    while (accel_check_interrupt_data_ready() == false) {
+        //printf("Waiting for accel data ready\n");
+        if (timeout_timer.deltaTime_ms() > timeout_us) {
+            //printf("Timeout waiting for accel data ready\n");
+            break;
+        }
+    }
+    //read and clear the interrupt
+    accel_interrupt_reg_clear();
+
+    bmi088DatasetRaw bmi088RawData = get_data_raw();
+    bmi088DatasetConverted bmi088ConvertedData = convert_data(bmi088RawData);
+    return bmi088ConvertedData;
 }
 
 inline void bmi088::accel_cs_select()

@@ -47,6 +47,8 @@ struct bmi088DatasetConverted {
     AccelDataConverted accel_data_converted;
     AccelTemperatureConverted accel_temperature_converted;
     GyroDataConverted gyro_data_converted;
+    uint16_t accel_odr;
+    uint16_t gyro_odr;
 };
 
 namespace drv
@@ -81,6 +83,8 @@ public:
     static void print_data_raw(bmi088DatasetRaw bmi088_dataset_raw);
     static void print_data_converted(bmi088DatasetConverted bmi088_dataset_converted);
     static void print_data_converted_floats(bmi088DatasetConverted bmi088_dataset_converted);
+    bmi088DatasetConverted blocking_wait_for_new_gyro_data(uint64_t timeout_us);
+    bmi088DatasetConverted blocking_wait_for_new_accel_data(uint64_t timeout_us);
 
     bool accel_check_interrupt_data_ready();
     bool accel_interrupt_reg_clear();
@@ -123,6 +127,8 @@ private:
     uint _accel_int_pin;
     uint _gyro_int_pin;
 
+    uint16_t _accel_odr = 0;
+    uint16_t _gyro_odr = 0;
     // Gyro calibration
     GyroDataConverted _gyro_calibration_values;
 
