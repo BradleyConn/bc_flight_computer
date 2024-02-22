@@ -10,6 +10,7 @@
 #include "system/inc/telemetry_container.h"
 #include "system/inc/thrust_curves/thrust_curve_E9.h"
 #include "system/inc/time_keeper.h"
+#include "system/inc/parachute.h"
 #include "tests/characterize_servo_test.h"
 #include "tests/chute_ejection_test.h"
 #include "tests/orientation_test.h"
@@ -94,6 +95,7 @@ int main()
     auto state_detector = StateDetector(LIFTOFF_ACCEL_THRESHOLD_MG, MOTOR_BURNOUT_ACCEL_THRESHOLD_MG, APOGEE_ALTITUDE_THRESHOLD_CM, LANDING_ACCEL_THRESHOLD_MG);
     auto orientation_calculator = OrientationCalculator();
     auto control_loop = ControlLoop(orientation_calculator, servo_A_Yaw, servo_C_Pitch, CONTROL_LOOP_UPDATE_RATE_US, LEVER_ARM_M, MMOI_KG_M2);
+    auto parachute = Parachute(servo_D_Parachute);
 
     //printf("\n\n");
     //telemetry_container.setBMI088DatasetRaw(bmi088RawData);
@@ -251,7 +253,7 @@ int main()
                 break;
             case PARACHUTE_DEPLOYMENT:
                 // Deploy the parachute!
-                /*parachute.deploy();*/
+                parachute.deploy();
                 //TODO: Log the parachute deployment
                 currentState = DETECTING_LANDING;
 #ifdef DEBUG
