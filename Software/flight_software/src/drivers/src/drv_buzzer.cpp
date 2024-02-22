@@ -121,15 +121,15 @@ void buzzer::play_blocking(Chime chime, uint32_t duration_ms, uint8_t volume_per
             }
             break;
         case Chime::Chirp:
-            // We'll say chirp is a 250 ms pulse followed by a 750 ms pause
-            num_loops = duration_ms / 1000;
+            // We'll say chirp is a 250 ms pulse followed by a 2750 ms pause
+            num_loops = duration_ms / 3000;
             for (auto i = 0; i < num_loops; i++) {
                 set_volume_percentage(volume_percent);
                 sleep_ms(250);
                 set_volume_percentage(0);
-                sleep_ms(750);
+                sleep_ms(2750);
             }
-            remainder = duration_ms % 1000;
+            remainder = duration_ms % 3000;
             if (remainder > 250) {
                 set_volume_percentage(volume_percent);
                 sleep_ms(250);
@@ -140,6 +140,7 @@ void buzzer::play_blocking(Chime chime, uint32_t duration_ms, uint8_t volume_per
                 sleep_ms(remainder);
                 set_volume_percentage(0);
             }
+
             break;
         default:
             break;

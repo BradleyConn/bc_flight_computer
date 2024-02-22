@@ -34,6 +34,7 @@ add_executable(main
     src/system/src/thrust_curves/thrust_curve_E12.cpp
     src/system/src/thrust_curves/thrust_curve_E9.cpp
     src/system/src/orientation_calculator.cpp
+    src/system/src/state_detector.cpp
 
     src/tests/characterize_servo_test.cpp
     src/tests/orientation_test.cpp

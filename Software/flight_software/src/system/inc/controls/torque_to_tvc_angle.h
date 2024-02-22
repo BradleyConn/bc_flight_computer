@@ -17,7 +17,7 @@ public:
     ~TorqueToTvcAngle();
 
     // Function to get the TVC angle for a given torque and time
-    float getTvcAngle(uint32_t desiredTorque_mN, uint32_t time_under_thrust_ms);
+    float getTvcAngle(float desired_PID_angle, uint32_t time_under_thrust_ms, float lever_arm_m);
 
 private:
     // Unique pointer to the thrust curve

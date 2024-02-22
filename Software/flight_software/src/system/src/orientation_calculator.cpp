@@ -43,7 +43,7 @@ void OrientationCalculator::update(const bmi088DatasetConverted& data)
     static int count = 0;
     if (count++ % 100 == 0) {
         //printf("yaw = %f, pitch = %f, roll = %f\n", _euler.yaw * RAD_TO_DEG, _euler.pitch * RAD_TO_DEG, _euler.roll * RAD_TO_DEG);
-        printf("y%fyp%fpr%fr\n", _euler.yaw * RAD_TO_DEG, _euler.pitch * RAD_TO_DEG, _euler.roll * RAD_TO_DEG);
+        //printf("y%fyp%fpr%fr\n", _euler.yaw * RAD_TO_DEG, _euler.pitch * RAD_TO_DEG, _euler.roll * RAD_TO_DEG);
     }
 
 }

@@ -15,13 +15,16 @@ class ControlLoop
 {
 public:
     //injection of the servos
-    ControlLoop(const OrientationCalculator& orientation, drv::servo& servo_yaw_Z_axis_servo_A, drv::servo& servo_pitch_Y_axis_servo_C, uint64_t updateRate_us);
+    ControlLoop(const OrientationCalculator& orientation, drv::servo& servo_yaw_Z_axis_servo_A, drv::servo& servo_pitch_Y_axis_servo_C, uint64_t updateRate_us,
+                float lever_arm_m, float mmoi_kg_m2);
     ~ControlLoop();
 
     void start();
     // Run control loop if it has been long enough since the last update
     void tryUpdate(const bmi088DatasetConverted& data);
     void abort();
+    // This check is done by visual inspection of the rocket
+    void init_servo_test();
 
 private:
     const OrientationCalculator& _orientation;
@@ -29,6 +32,8 @@ private:
     drv::servo& _servo_yaw_Z_axis_servo_A;
     drv::servo& _servo_pitch_Y_axis_servo_C;
     uint64_t _updateRate_us;
+    float _lever_arm_m;
+    float _mmoi_kg_m2;
 
     TimeKeeper _time_since_update;
     TimeKeeper _time_under_thrust;
@@ -40,13 +45,15 @@ private:
     TVCAngleToServoSetpoint _tvc_angle_to_servo_setpoint;
 
     // The PID values! Proabably better as parameters
-    static constexpr float _yaw_pid_kp = 1.0f;
-    static constexpr float _yaw_pid_ki = 0.0f;
-    static constexpr float _yaw_pid_kd = 0.0f;
+    static constexpr float _yaw_pid_kp = 0.4f;
+    static constexpr float _yaw_pid_ki = 0.02f;
+    static constexpr float _yaw_pid_kd = 0.2f;
 
-    static constexpr float _pitch_pid_kp = 1.0f;
-    static constexpr float _pitch_pid_ki = 0.0f;
-    static constexpr float _pitch_pid_kd = 0.0f;
+    static constexpr float _pitch_pid_kp = 0.4f;
+    static constexpr float _pitch_pid_ki = 0.02f;
+    static constexpr float _pitch_pid_kd = 0.2f;
+
+    static constexpr float _ki_clamp = 5*4.5f; // Roughly tvc angle (5 deg) * servo linkage ratio (4.5:1)
 
     bool _abort = false;
 };

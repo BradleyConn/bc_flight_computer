@@ -6,6 +6,7 @@
 #include "drivers/inc/drv_led.h"
 #include "drivers/inc/drv_servo.h"
 #include "system/inc/control_loop.h"
+#include "system/inc/state_detector.h"
 #include "system/inc/telemetry_container.h"
 #include "system/inc/thrust_curves/thrust_curve_E9.h"
 #include "system/inc/time_keeper.h"
@@ -13,6 +14,8 @@
 #include "tests/chute_ejection_test.h"
 #include "tests/orientation_test.h"
 #include <stdio.h>
+
+#define DEBUG
 
 int main()
 {
@@ -32,6 +35,16 @@ int main()
     constexpr uint32_t MAX_COAST_TIME_MS = 5000;
     // 5 ms
     constexpr uint32_t INTERRUPT_TIMEOUT_US = 5 * 1000;
+
+    constexpr uint32_t LIFTOFF_ACCEL_THRESHOLD_MG = 1750;
+    constexpr uint32_t MOTOR_BURNOUT_ACCEL_THRESHOLD_MG = 250;
+    constexpr uint32_t APOGEE_ALTITUDE_THRESHOLD_CM = 5 * 100; // 5m
+    constexpr uint32_t LANDING_ACCEL_THRESHOLD_MG = 700;
+    constexpr int32_t PITCH_SERVO_OFFSET_MILLI_DEG = -18000;
+    constexpr int32_t YAW_SERVO_OFFSET_MILLI_DEG = 6000;
+    constexpr int32_t CONTROL_LOOP_UPDATE_RATE_US = 40 * 1000;
+    constexpr float LEVER_ARM_M = 0.09525;
+    constexpr float MMOI_KG_M2 = 0.00417804;
 
     auto flash = drv::FlashDriver();
     // TODO: Dump the entire log
@@ -63,10 +76,10 @@ int main()
     // The parachute servo
     auto servo_D_Parachute = drv::servo(PICO_DEFAULT_SERVO_D_PIN, drv::servo::servo_type::Analog, 0);
     // The pitch servo
-    auto servo_C_Pitch = drv::servo(PICO_DEFAULT_SERVO_C_PIN, drv::servo::servo_type::Digital, 0);
+    auto servo_C_Pitch = drv::servo(PICO_DEFAULT_SERVO_C_PIN, drv::servo::servo_type::Digital, PITCH_SERVO_OFFSET_MILLI_DEG, 0);
     //auto servo_B = drv::servo(PICO_DEFAULT_SERVO_B_PIN, drv::servo::servo_type::Analog, 0);
     // The yaw servo
-    auto servo_A_Yaw = drv::servo(PICO_DEFAULT_SERVO_A_PIN, drv::servo::servo_type::Digital, 0);
+    auto servo_A_Yaw = drv::servo(PICO_DEFAULT_SERVO_A_PIN, drv::servo::servo_type::Digital, YAW_SERVO_OFFSET_MILLI_DEG, 0);
 
     auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED, 2);
     auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 2);
@@ -78,9 +91,9 @@ int main()
                               PICO_DEFAULT_SPI_ACCEL_CS_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_CS_PIN_BMI088, drv::bmi088::spi_module_0,
                               PICO_DEFAULT_SPI_ACCEL_INT_PIN_BMI088, PICO_DEFAULT_SPI_GYRO_INT_PIN_BMI088);
 
-    //auto state_detector = sys::StateDetector();
+    auto state_detector = StateDetector(LIFTOFF_ACCEL_THRESHOLD_MG, MOTOR_BURNOUT_ACCEL_THRESHOLD_MG, APOGEE_ALTITUDE_THRESHOLD_CM, LANDING_ACCEL_THRESHOLD_MG);
     auto orientation_calculator = OrientationCalculator();
-    auto control_loop = ControlLoop(orientation_calculator, servo_A_Yaw, servo_C_Pitch, 40000 /* us update rate */);
+    auto control_loop = ControlLoop(orientation_calculator, servo_A_Yaw, servo_C_Pitch, CONTROL_LOOP_UPDATE_RATE_US, LEVER_ARM_M, MMOI_KG_M2);
 
     //printf("\n\n");
     //telemetry_container.setBMI088DatasetRaw(bmi088RawData);
@@ -113,6 +126,7 @@ int main()
 
     // variables for the switch case
     bmi088DatasetConverted bmi088Data;
+    //bmp280DatasetConverted bmp280Data;
     TimeKeeper coast_timer;
 
     while (1) {
@@ -132,16 +146,21 @@ int main()
                 servo_C_Pitch.set_angle_milli_degrees(0);
                 //servo_B.set_angle_milli_degrees(0);
                 servo_A_Yaw.set_angle_milli_degrees(0);
+#ifndef DEBUG
+                //buzzer.play_blocking(drv::buzzer::Chime::Chirp, 10000, default_buzzer_volume);
 
-                buzzer.play_blocking(drv::buzzer::Chime::Chirp, 5000, default_buzzer_volume);
+                puts("Init Servo Test!");
+                //orientation_control_system.init_servo_test();
+                control_loop.init_servo_test();
 
-                //TODO: Servo init routine
-                //orientation_control_system.servo_test();
-
+                puts("You have 30 seconds to put the rocket in it's place before calibration!");
                 // Give some time for the operator to get the rocket where it needs to be after it was powered on before calibrating
                 buzzer.play_blocking(drv::buzzer::Chime::BeepSlow, 10000, default_buzzer_volume);
+                puts("20...");
                 buzzer.play_blocking(drv::buzzer::Chime::BeepMedium, 10000, default_buzzer_volume);
+                puts("10...");
                 buzzer.play_blocking(drv::buzzer::Chime::BeepFast, 10000, default_buzzer_volume);
+#endif
 
                 currentState = CALIBRATION;
                 break;
@@ -149,11 +168,15 @@ int main()
                 // Rocket should be seated and settled now
                 buzzer.set_volume_percentage(default_buzzer_volume);
 
+                puts("Calibrating the sensors!");
+
                 // calibrate the sensors
                 bmi088.run_gyro_calibration();
                 bmp280.calculate_baseline_pressure_and_altitude_cm();
 
                 buzzer.stop();
+
+                puts("Calibration complete! Attempting to detect liftoff`");
 
                 currentState = DETECTING_LAUNCH;
                 break;
@@ -163,13 +186,17 @@ int main()
                 bmi088Data = bmi088.blocking_wait_for_new_accel_data(INTERRUPT_TIMEOUT_US);
 
                 // Detect liftoff
-                if (1 /*state_detector.liftoff_detected(bmi088Data)*/) {
+                if (state_detector.check_liftoff_detected(bmi088Data) == true) {
                     timeKeeperLaunch.mark();
                     control_loop.start();
                     // this is the first gyro based orientation data
                     orientation_calculator.update(bmi088Data);
                     currentState = POWERED_FLIGHT;
+#ifdef DEBUG
+                    puts("TODO: REMOVE ME BEFORE FLIGHT! Liftoff detected!");
+#endif
                 } else {
+                    // Only want to use accelerometer data if not under thrust
                     orientation_calculator.update_gravity(bmi088Data);
                 }
                 break;
@@ -179,31 +206,47 @@ int main()
 
                 // Wait on new data interrupt
                 bmi088Data = bmi088.blocking_wait_for_new_gyro_data(INTERRUPT_TIMEOUT_US);
+                orientation_calculator.update(bmi088Data);
                 // The control loop is responsible for knowing when to update
                 control_loop.tryUpdate(bmi088Data);
                 // TODO: check abort
-                if (0 /*state_detector.abort_conditions_detected(bmi088Data)*/) {
+                /*if (state_detector.abort_conditions_detected(bmi088Data)) {
                     currentState = ABORT;
-                }
+                }*/
 
                 // Check for motor burnout using the accelerometer data
-                if (1 /*state_detector.motor_burnout_detected(bmi088Data)*/) {
+                if (state_detector.check_burnout_detected(bmi088Data) == true) {
                     coast_timer.mark();
                     currentState = DETECTING_APOGEE;
+
+#ifdef DEBUG
+                    puts("TODO: REMOVE ME BEFORE FLIGHT! Burnout detected!");
+#endif
                 }
 
                 break;
             case DETECTING_APOGEE:
                 // Wait on new data interrupt
                 bmi088Data = bmi088.blocking_wait_for_new_gyro_data(INTERRUPT_TIMEOUT_US);
+                orientation_calculator.update(bmi088Data);
+                // In case we falsely detected burnout continue to try and update the control loop
+                control_loop.tryUpdate(bmi088Data);
+
                 // Check for apogee using the barometer data
-                if (1 /*state_detector.apogee_detected(bmp280.get_data_converted())*/) {
+                if (state_detector.check_apogee_detected(bmp280.pressure_Pa_to_relative_altitude_cm(bmp280.convert_data(bmp280.get_data_raw()).pressure_Pa)) ==
+                    true) {
                     //TODO: Log the apogee detection
                     currentState = PARACHUTE_DEPLOYMENT;
+#ifdef DEBUG
+                    puts("TODO: REMOVE ME BEFORE FLIGHT! Apogee detected!");
+#endif
                 }
                 // Use a timer as a safety check
                 else if (coast_timer.deltaTime_ms() > MAX_COAST_TIME_MS) {
                     currentState = PARACHUTE_DEPLOYMENT;
+#ifdef DEBUG
+                    puts("TODO: REMOVE ME BEFORE FLIGHT! Max coast time reached!");
+#endif
                 }
                 break;
             case PARACHUTE_DEPLOYMENT:
@@ -211,18 +254,27 @@ int main()
                 /*parachute.deploy();*/
                 //TODO: Log the parachute deployment
                 currentState = DETECTING_LANDING;
+#ifdef DEBUG
+                puts("TODO: REMOVE ME BEFORE FLIGHT! Parachute deployed!");
+#endif
                 break;
             case DETECTING_LANDING:
                 // Wait on new data interrupt
                 bmi088Data = bmi088.blocking_wait_for_new_gyro_data(INTERRUPT_TIMEOUT_US);
+                orientation_calculator.update(bmi088Data);
                 // TODO: if it's been 100ms turn off the servos
-                currentState = RECOVERY;
+                if (state_detector.check_landing_detected(bmi088Data) == true) {
+                    currentState = RECOVERY;
+#ifdef DEBUG
+                    puts("TODO: REMOVE ME BEFORE FLIGHT! Landing detected!");
+#endif
+                }
                 break;
             case RECOVERY:
                 // Log the last of the data
                 /*telemetry_container.flushBuffer();*/
                 // Play a tune to let the operator know the flight is over
-                buzzer.play_blocking(drv::buzzer::Chime::Chirp, 1000 * 60 * 60 * 24, 100);
+                buzzer.play_blocking(drv::buzzer::Chime::Chirp, 1000 * 60 * 60 * 24, default_buzzer_volume);
                 break;
             case ABORT:
                 control_loop.abort();

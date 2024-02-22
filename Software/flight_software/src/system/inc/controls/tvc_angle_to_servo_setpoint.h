@@ -7,7 +7,7 @@ public:
     TVCAngleToServoSetpoint();
     ~TVCAngleToServoSetpoint();
 
-    float convertAngleToSetpoint(float tvc_angle_degrees);
+    float convertAngleToSetpoint(float tvc_angle_degrees, bool is_straight_bar);
 };
 
 #endif // TVC_ANGLE_TO_SERVO_SETPOINT_H
