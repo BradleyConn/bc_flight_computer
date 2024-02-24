@@ -160,8 +160,8 @@ void bmi088::init()
     // Set the range to 2000 deg/s, 61 milli-degree/sec/LSB
     gyro_write_register(0x0F, 0x00);
     // Set the ODR to 2000hz (500us), and bandwidth to 532Hz
-    gyro_write_register(0x10, 0x00);
-    _gyro_odr = 2000;
+    gyro_write_register(0x10, 0x03);
+    _gyro_odr = 400;
     // Enable new data interrupt to be triggered on new data
     gyro_write_register(0x15, 0x80);
 

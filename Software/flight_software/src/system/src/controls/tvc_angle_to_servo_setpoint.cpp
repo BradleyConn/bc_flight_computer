@@ -78,7 +78,7 @@ float TVCAngleToServoSetpoint::convertAngleToSetpoint(float tvc_angle_degrees, b
     } else if (tvc_angle_degrees < -5.0f) {
         tvc_angle_degrees = -5.0f;
     }
-    printf("tvc_angle_degrees = %f\n", tvc_angle_degrees);
+    //printf("tvc_angle_degrees = %f\n", tvc_angle_degrees);
 
     // Grab the nearest two points and interpolate between them
     // The TVC mount only has a range of +- 5 degrees
@@ -97,9 +97,9 @@ float TVCAngleToServoSetpoint::convertAngleToSetpoint(float tvc_angle_degrees, b
                 auto tvc_angle_2 = lookup_table_straight_bar[i].tvc_angle;
                 auto servo_setpoint_2 = lookup_table_straight_bar[i].servo_setpoint;
 
-                printf("STRAIGHT servo_setpoint_1 = %f, servo_setpoint_2 = %f, tvc_angle_1 = %f, tvc_angle_2 = %f, tvc_angle_degrees = %f\n",
-                       servo_setpoint_1, servo_setpoint_2, tvc_angle_1, tvc_angle_2, tvc_angle_degrees);
-                       printf("result = %f\n", servo_setpoint_1 + (servo_setpoint_2 - servo_setpoint_1) * (tvc_angle_degrees - tvc_angle_1) / (tvc_angle_2 - tvc_angle_1));
+                //printf("STRAIGHT servo_setpoint_1 = %f, servo_setpoint_2 = %f, tvc_angle_1 = %f, tvc_angle_2 = %f, tvc_angle_degrees = %f\n",
+                //       servo_setpoint_1, servo_setpoint_2, tvc_angle_1, tvc_angle_2, tvc_angle_degrees);
+                //       printf("result = %f\n", servo_setpoint_1 + (servo_setpoint_2 - servo_setpoint_1) * (tvc_angle_degrees - tvc_angle_1) / (tvc_angle_2 - tvc_angle_1));
                 // use std numeric lerp to interpolate
                 return servo_setpoint_1 + (servo_setpoint_2 - servo_setpoint_1) * (tvc_angle_degrees - tvc_angle_1) / (tvc_angle_2 - tvc_angle_1);
             }
@@ -121,8 +121,8 @@ float TVCAngleToServoSetpoint::convertAngleToSetpoint(float tvc_angle_degrees, b
                 // use std numeric lerp to interpolate
                 auto result = servo_setpoint_1 + (servo_setpoint_2 - servo_setpoint_1) * (tvc_angle_degrees - tvc_angle_1) / (tvc_angle_2 - tvc_angle_1);
 
-                printf("BENDY servo_setpoint_1 = %f, servo_setpoint_2 = %f, tvc_angle_1 = %f, tvc_angle_2 = %f, tvc_angle_degrees = %f, result = %f\n",
-                       servo_setpoint_1, servo_setpoint_2, tvc_angle_1, tvc_angle_2, tvc_angle_degrees, result);
+                //printf("BENDY servo_setpoint_1 = %f, servo_setpoint_2 = %f, tvc_angle_1 = %f, tvc_angle_2 = %f, tvc_angle_degrees = %f, result = %f\n",
+                //       servo_setpoint_1, servo_setpoint_2, tvc_angle_1, tvc_angle_2, tvc_angle_degrees, result);
 
                 // The bendy bar is upside down compared to the straight bar so negate the servo setpoint
                 return -1 * result;

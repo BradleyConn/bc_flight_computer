@@ -66,6 +66,7 @@ void FlashDriver::write_next_usable_page_size(uint8_t* data)
         buffer[i + sizeof(magic_header)] = data[i];
     }
     //write the buffer to the flash
+    printf("FlashDriver::write_next_usable_page() - write next usable page size\n");
     write(next_page * flash_page_size, buffer, flash_page_size);
     //increment next_page
     next_page++;
@@ -201,6 +202,9 @@ void FlashDriver::write(uint32_t offset, const uint8_t* data, size_t count)
         return;
     }
     //write to the flash
+    puts("FlashDriver::write() - write to the flash");
+    printf("FlashDriver::write() - offset = %lu, count = %lu\n", offset, count);
+    printf("FlashDriver::write() - data = %08X\n", data);
     flash_range_program(offset, data, count);
 }
 

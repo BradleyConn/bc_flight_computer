@@ -10,6 +10,7 @@ public:
     ~Parachute();
 
     void deploy();
+    void arm();
 
 private:
     //servo reference to deploy the parachute

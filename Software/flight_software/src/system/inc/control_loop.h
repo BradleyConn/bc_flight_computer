@@ -26,6 +26,29 @@ public:
     // This check is done by visual inspection of the rocket
     void init_servo_test();
 
+    struct ControlLoopData {
+        float yaw_error_degrees;
+        float pitch_error_degrees;
+        float yaw_PID_angle;
+        float pitch_PID_angle;
+        float yaw_tvc_angle;
+        float pitch_tvc_angle;
+        float yaw_servo_setpoint;
+        float pitch_servo_setpoint;
+        // time since last update
+        uint32_t time_since_update_us;
+        // time under thrust
+        uint32_t time_under_thrust_ms;
+    };
+
+    ControlLoopData getControlLoopData() const
+    {
+        return _control_loop_data;
+    }
+
+    //hack to see if the loop updated
+    bool did_update = false;
+
 private:
     const OrientationCalculator& _orientation;
     // The two servos
@@ -53,9 +76,12 @@ private:
     static constexpr float _pitch_pid_ki = 0.02f;
     static constexpr float _pitch_pid_kd = 0.2f;
 
-    static constexpr float _ki_clamp = 5*4.5f; // Roughly tvc angle (5 deg) * servo linkage ratio (4.5:1)
+    static constexpr float _ki_clamp = 5 * 4.5f; // Roughly tvc angle (5 deg) * servo linkage ratio (4.5:1)
 
     bool _abort = false;
+
+    // controll loop data to hold the state
+    ControlLoopData _control_loop_data;
 };
 
 #endif // CONTROL_LOOP_H

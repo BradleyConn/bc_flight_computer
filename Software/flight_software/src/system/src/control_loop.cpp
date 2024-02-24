@@ -32,13 +32,15 @@ void ControlLoop::start()
 void ControlLoop::tryUpdate(const bmi088DatasetConverted& data)
 {
     if (_time_since_update.deltaTime_us() < _updateRate_us || _abort) {
+        did_update = false;
         return;
     }
+    did_update = true;
     float dt_s_f = _time_since_update.deltaTime_us() / (1000.0f * 1000.0f);
 
     // 1. Get the rocket body frame yaw and pitch errors
     auto _angle_errors = convertEulerAnglesToAxisError(_orientation.getEulerYawPitchRollAngles());
-    printf("yaw = %f, pitch = %f, \n", _angle_errors.yaw_Z_axis_servo_A_error_degrees, _angle_errors.pitch_y_axis_servo_C_error_degrees);
+    //printf("yaw = %f, pitch = %f, \n", _angle_errors.yaw_Z_axis_servo_A_error_degrees, _angle_errors.pitch_y_axis_servo_C_error_degrees);
 
 #if 0
     // Intended to use torque based PID but I'm getting some trouble. I'll use the angle based PID for now.
@@ -55,8 +57,8 @@ void ControlLoop::tryUpdate(const bmi088DatasetConverted& data)
     auto yaw_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(yaw_tvc_angle, /* is straight bar*/ true);
     auto pitch_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(pitch_tvc_angle, /* is straight bar*/ false);
 
-    printf("yaw_PID_torque_NM = %f, pitch_PID_torque_NM = %f, yaw_tvc_angle = %f, pitch_tvc_angle = %f, yaw_servo_setpoint = %f, pitch_servo_setpoint = %f\n",
-           yaw_PID_torque_NM, pitch_PID_torque_NM, yaw_tvc_angle, pitch_tvc_angle, yaw_servo_setpoint, pitch_servo_setpoint);
+    //printf("yaw_PID_torque_NM = %f, pitch_PID_torque_NM = %f, yaw_tvc_angle = %f, pitch_tvc_angle = %f, yaw_servo_setpoint = %f, pitch_servo_setpoint = %f\n",
+    //       yaw_PID_torque_NM, pitch_PID_torque_NM, yaw_tvc_angle, pitch_tvc_angle, yaw_servo_setpoint, pitch_servo_setpoint);
 #else
     // 2. Feed the errors into the PID controllers
     auto yaw_PID_angle = _yaw_pid.update(_angle_errors.yaw_Z_axis_servo_A_error_degrees, dt_s_f);
@@ -70,8 +72,8 @@ void ControlLoop::tryUpdate(const bmi088DatasetConverted& data)
     auto yaw_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(yaw_tvc_angle, /* is straight bar*/ true);
     auto pitch_servo_setpoint = _tvc_angle_to_servo_setpoint.convertAngleToSetpoint(pitch_tvc_angle, /* is straight bar*/ false);
 
-    printf("yaw_PID_angle = %f, pitch_PID_ANGLE = %f, yaw_tvc_angle = %f, pitch_tvc_angle = %f, yaw_servo_setpoint = %f, pitch_servo_setpoint = %f\n",
-           yaw_PID_angle, pitch_PID_angle, yaw_tvc_angle, pitch_tvc_angle, yaw_servo_setpoint, pitch_servo_setpoint);
+    //printf("yaw_PID_angle = %f, pitch_PID_ANGLE = %f, yaw_tvc_angle = %f, pitch_tvc_angle = %f, yaw_servo_setpoint = %f, pitch_servo_setpoint = %f\n",
+    //       yaw_PID_angle, pitch_PID_angle, yaw_tvc_angle, pitch_tvc_angle, yaw_servo_setpoint, pitch_servo_setpoint);
 #endif
 
     // 6. Move the servos
@@ -80,6 +82,19 @@ void ControlLoop::tryUpdate(const bmi088DatasetConverted& data)
 
     // 7. Update the time since the last update
     _time_since_update.mark();
+
+    // copy all the state to the data struct
+    _control_loop_data = { _angle_errors.yaw_Z_axis_servo_A_error_degrees,
+                           _angle_errors.pitch_y_axis_servo_C_error_degrees,
+                           yaw_PID_angle,
+                           pitch_PID_angle,
+                           yaw_tvc_angle,
+                           pitch_tvc_angle,
+                           yaw_servo_setpoint,
+                           pitch_servo_setpoint,
+                           (uint32_t)_time_since_update.deltaTime_us(),
+                           (uint32_t)_time_under_thrust.deltaTime_ms() };
+
 }
 
 void ControlLoop::abort()

@@ -23,6 +23,20 @@ public:
     // Checks to see if pitch or yaw are greater than 60 degrees
     //bool check_abort();
 
+    // Getters using a struct
+    struct StateFlags {
+        bool liftoff_detected;
+        bool burnout_detected;
+        bool apogee_detected;
+        bool landing_detected;
+        bool abort;
+    };
+    StateFlags get_state_flags() const
+    {
+        return {_liftoff_detected, _burnout_detected, _apogee_detected, _landing_detected, _abort};
+    }
+
+
 private:
     int32_t _liftoff_acceleration_threshold_mg = 0;
     int32_t _burnout_acceleration_threshold_mg = 0;

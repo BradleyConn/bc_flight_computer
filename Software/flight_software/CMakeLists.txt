@@ -36,6 +36,7 @@ add_executable(main
     src/system/src/orientation_calculator.cpp
     src/system/src/state_detector.cpp
     src/system/src/parachute.cpp
+    src/system/src/logger.cpp
 
     src/tests/characterize_servo_test.cpp
     src/tests/orientation_test.cpp

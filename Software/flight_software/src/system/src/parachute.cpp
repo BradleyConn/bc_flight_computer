@@ -12,3 +12,8 @@ void Parachute::deploy() {
     // TODO: make this a constant somewhere
     _parachuteServo.set_angle_milli_degrees(45 * 1000);
 }
+
+void Parachute::arm()
+{
+    _parachuteServo.set_angle_milli_degrees(0);
+}

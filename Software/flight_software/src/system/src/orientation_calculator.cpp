@@ -1,4 +1,5 @@
 #include "../inc/orientation_calculator.h"
+#include "orientation_calculator.h"
 #include <stdio.h>
 
 #define DEG_TO_RAD 0.017453292519943295769236907684886
@@ -45,7 +46,6 @@ void OrientationCalculator::update(const bmi088DatasetConverted& data)
         //printf("yaw = %f, pitch = %f, roll = %f\n", _euler.yaw * RAD_TO_DEG, _euler.pitch * RAD_TO_DEG, _euler.roll * RAD_TO_DEG);
         //printf("y%fyp%fpr%fr\n", _euler.yaw * RAD_TO_DEG, _euler.pitch * RAD_TO_DEG, _euler.roll * RAD_TO_DEG);
     }
-
 }
 
 // Orientation lib needs floats
@@ -68,7 +68,6 @@ void OrientationCalculator::update_gravity(const bmi088DatasetConverted& data)
         //printf("x_g = %f, y_g = %f, z_g = %f\n", x_g, y_g, z_g);
         //printf("yaw = %f, pitch = %f, roll = %f\n", _euler.yaw * RAD_TO_DEG, _euler.pitch * RAD_TO_DEG, _euler.roll * RAD_TO_DEG);
     }
-
 }
 
 EulerAngles OrientationCalculator::getEulerYawPitchRollAngles() const

@@ -6,17 +6,18 @@
 #include "drivers/inc/drv_led.h"
 #include "drivers/inc/drv_servo.h"
 #include "system/inc/control_loop.h"
+#include "system/inc/logger.h"
+#include "system/inc/parachute.h"
 #include "system/inc/state_detector.h"
 #include "system/inc/telemetry_container.h"
 #include "system/inc/thrust_curves/thrust_curve_E9.h"
 #include "system/inc/time_keeper.h"
-#include "system/inc/parachute.h"
 #include "tests/characterize_servo_test.h"
 #include "tests/chute_ejection_test.h"
 #include "tests/orientation_test.h"
 #include <stdio.h>
 
-#define DEBUG
+//#define DEBUG
 
 int main()
 {
@@ -46,10 +47,14 @@ int main()
     constexpr int32_t CONTROL_LOOP_UPDATE_RATE_US = 40 * 1000;
     constexpr float LEVER_ARM_M = 0.09525;
     constexpr float MMOI_KG_M2 = 0.00417804;
+    auto default_buzzer_volume = 100;
 
     auto flash = drv::FlashDriver();
+    flash.dump_full_log();
+    //flash.reset_log();
     // TODO: Dump the entire log
-    /*{
+
+    {
         // read the last session data and use the telemetry container to print it
         if (flash.has_previous_session()) {
             printf("FlashDriver::FlashDriver() - found a previous session, print data using the telemetry container\n");
@@ -69,8 +74,9 @@ int main()
             telemetry_container.printRawLogBytes();
             printf("DONE!\n\n");
         }
-    }*/
-    //auto telemetry_container = sys::TelemetryContainer();
+    }
+    auto telemetry_container = sys::TelemetryContainer();
+    auto logger = Logger(flash);
 
     // TODO: Pull these out into a config file...
     //auto servo_E = drv::servo(PICO_DEFAULT_SERVO_E_PIN, drv::servo::servo_type::Analog, 0);
@@ -78,14 +84,13 @@ int main()
     auto servo_D_Parachute = drv::servo(PICO_DEFAULT_SERVO_D_PIN, drv::servo::servo_type::Analog, 0);
     // The pitch servo
     auto servo_C_Pitch = drv::servo(PICO_DEFAULT_SERVO_C_PIN, drv::servo::servo_type::Digital, PITCH_SERVO_OFFSET_MILLI_DEG, 0);
-    //auto servo_B = drv::servo(PICO_DEFAULT_SERVO_B_PIN, drv::servo::servo_type::Analog, 0);
+    auto servo_B = drv::servo(PICO_DEFAULT_SERVO_B_PIN, drv::servo::servo_type::Analog, 0);
     // The yaw servo
     auto servo_A_Yaw = drv::servo(PICO_DEFAULT_SERVO_A_PIN, drv::servo::servo_type::Digital, YAW_SERVO_OFFSET_MILLI_DEG, 0);
 
     auto led_r = drv::pwm_led(PICO_DEFAULT_LED_PIN_RED, 2);
     auto led_g = drv::pwm_led(PICO_DEFAULT_LED_PIN_GREEN, 2);
     auto buzzer = drv::buzzer(PICO_DEFAULT_BUZZER_PIN);
-    auto default_buzzer_volume = 2;
     auto bmp280 = drv::bmp280(PICO_DEFAULT_SPI_SCLK_PIN_BMP280, PICO_DEFAULT_SPI_MISO_PIN_BMP280, PICO_DEFAULT_SPI_MOSI_PIN_BMP280,
                               PICO_DEFAULT_SPI_CS_PIN_BMP280, drv::bmp280::spi_module_1);
     auto bmi088 = drv::bmi088(PICO_DEFAULT_SPI_SCLK_PIN_BMI088, PICO_DEFAULT_SPI_MISO_PIN_BMI088, PICO_DEFAULT_SPI_MOSI_PIN_BMI088,
@@ -95,7 +100,8 @@ int main()
     auto state_detector = StateDetector(LIFTOFF_ACCEL_THRESHOLD_MG, MOTOR_BURNOUT_ACCEL_THRESHOLD_MG, APOGEE_ALTITUDE_THRESHOLD_CM, LANDING_ACCEL_THRESHOLD_MG);
     auto orientation_calculator = OrientationCalculator();
     auto control_loop = ControlLoop(orientation_calculator, servo_A_Yaw, servo_C_Pitch, CONTROL_LOOP_UPDATE_RATE_US, LEVER_ARM_M, MMOI_KG_M2);
-    auto parachute = Parachute(servo_D_Parachute);
+    auto parachute = Parachute(servo_B);
+    parachute.arm();
 
     //printf("\n\n");
     //telemetry_container.setBMI088DatasetRaw(bmi088RawData);
@@ -130,6 +136,9 @@ int main()
     bmi088DatasetConverted bmi088Data;
     //bmp280DatasetConverted bmp280Data;
     TimeKeeper coast_timer;
+    auto scopeTimer = TimeKeeper();
+    auto time = scopeTimer.deltaTime_us();
+    time = 0;
 
     while (1) {
         switch (currentState) {
@@ -194,6 +203,7 @@ int main()
                     // this is the first gyro based orientation data
                     orientation_calculator.update(bmi088Data);
                     currentState = POWERED_FLIGHT;
+                    scopeTimer.mark();
 #ifdef DEBUG
                     puts("TODO: REMOVE ME BEFORE FLIGHT! Liftoff detected!");
 #endif
@@ -207,10 +217,16 @@ int main()
                 // For now it's fine to just only get a snapshot of the acceleration data
 
                 // Wait on new data interrupt
+                //scopeTimer.mark();
+                //time = scopeTimer.deltaTime_us();
+                //printf("t%llu\n", time);
                 bmi088Data = bmi088.blocking_wait_for_new_gyro_data(INTERRUPT_TIMEOUT_US);
+
+                //scopeTimer.mark();
                 orientation_calculator.update(bmi088Data);
                 // The control loop is responsible for knowing when to update
                 control_loop.tryUpdate(bmi088Data);
+
                 // TODO: check abort
                 /*if (state_detector.abort_conditions_detected(bmi088Data)) {
                     currentState = ABORT;
@@ -254,6 +270,7 @@ int main()
             case PARACHUTE_DEPLOYMENT:
                 // Deploy the parachute!
                 parachute.deploy();
+                puts("\n\n\n\n\n\n popped the chute!!!!\n");
                 //TODO: Log the parachute deployment
                 currentState = DETECTING_LANDING;
 #ifdef DEBUG
@@ -264,6 +281,9 @@ int main()
                 // Wait on new data interrupt
                 bmi088Data = bmi088.blocking_wait_for_new_gyro_data(INTERRUPT_TIMEOUT_US);
                 orientation_calculator.update(bmi088Data);
+                //for logging
+                control_loop.tryUpdate(bmi088Data);
+
                 // TODO: if it's been 100ms turn off the servos
                 if (state_detector.check_landing_detected(bmi088Data) == true) {
                     currentState = RECOVERY;
@@ -271,10 +291,12 @@ int main()
                     puts("TODO: REMOVE ME BEFORE FLIGHT! Landing detected!");
 #endif
                 }
+                // TODO: make a 10 second timeout for landing detection
                 break;
             case RECOVERY:
                 // Log the last of the data
-                /*telemetry_container.flushBuffer();*/
+                logger.update(telemetry_container);
+                logger.write_log_to_flash();
                 // Play a tune to let the operator know the flight is over
                 buzzer.play_blocking(drv::buzzer::Chime::Chirp, 1000 * 60 * 60 * 24, default_buzzer_volume);
                 break;
@@ -283,6 +305,18 @@ int main()
                 // If we're aborting pop the chute!
                 currentState = PARACHUTE_DEPLOYMENT;
                 break;
+        }
+        if (control_loop.did_update) {
+            //update everything
+            telemetry_container.setStartOfTheWorld(timeKeeperStartOfWorld.deltaTime_us());
+            telemetry_container.setBMI088DatasetConverted(bmi088Data);
+            telemetry_container.setBMP280DatasetConverted(bmp280.convert_data(bmp280.get_data_raw()));
+            telemetry_container.setRelativeAltitude_cm(bmp280.pressure_Pa_to_relative_altitude_cm(bmp280.convert_data(bmp280.get_data_raw()).pressure_Pa));
+            telemetry_container.setStateFlags(state_detector.get_state_flags());
+
+            telemetry_container.setControlLoopData(control_loop.getControlLoopData());
+            telemetry_container.setOrientation(orientation_calculator.getQuaternionValues());
+            logger.update(telemetry_container);
         }
     }
 }
